@@ -31,10 +31,10 @@ public class Services {
     private static final String NO_SUCH_DATA_ERROR_CODE = "-106";
 
 
-    public static void addTask(MDataInfo mDataInfo, Client client, int index, Task task) throws Exception {
-        byte[] key = getByteArray(index);
+    public static void addTask(MDataInfo mDataInfo, Client client, int size, Task task) throws Exception {
         byte[] value = Task.toStream(task);
-        if (index == 0) {
+        byte[] key = getByteArray(task.getDate().hashCode());
+        if (size == 0) {
             // For first entry, PUT MData into the network along with permissions
             PermissionSet permissionSet = new PermissionSet();
             permissionSet.setInsert(true);
@@ -60,14 +60,14 @@ public class Services {
 
     public static void deleteTask(MDataInfo mDataInfo, Client client, Task t) throws Exception {
         NativeHandle actionHandle = client.mDataEntryAction.newEntryAction().get();
-        client.mDataEntryAction.delete(actionHandle, getByteArray(t.getId()), t.getVersion() + 1).get();
+        client.mDataEntryAction.delete(actionHandle, getByteArray(t.getDate().hashCode()), t.getVersion() + 1).get();
         client.mData.mutateEntries(mDataInfo, actionHandle).get();
     }
 
     public static void updateTask(MDataInfo mDataInfo, Client client, Task task) throws Exception {
         Thread.sleep(2000);
         NativeHandle actionHandle = client.mDataEntryAction.newEntryAction().get();
-        client.mDataEntryAction.update(actionHandle, getByteArray(task.getId()), Task.toStream(task), task.getVersion());
+        client.mDataEntryAction.update(actionHandle, getByteArray(task.getDate().hashCode()), Task.toStream(task), task.getVersion());
         client.mData.mutateEntries(mDataInfo, actionHandle).get();
         Log.i("STAGE", task.getDescription() + "\n marked as " + (task.getComplete() ? "complete" : "incomplete"));
     }

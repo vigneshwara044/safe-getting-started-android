@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Date;
 
 public class Task implements Serializable {
 
@@ -14,11 +15,11 @@ public class Task implements Serializable {
 
     String description;
     Boolean isComplete;
-    int id;
+    Date date;
     long version;
 
-    public Task(String description, int id) {
-        this.id = id;
+    public Task(String description, Date date) {
+        this.date = date;
         this.description = description;
         this.isComplete = false;
         this.version = 0;
@@ -58,14 +59,6 @@ public class Task implements Serializable {
         this.version = version;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -80,6 +73,10 @@ public class Task implements Serializable {
 
     public void setComplete(Boolean complete) {
         isComplete = complete;
+    }
+
+    public Date getDate() {
+        return date;
     }
 
 }

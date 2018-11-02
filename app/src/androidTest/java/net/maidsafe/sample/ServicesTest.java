@@ -17,6 +17,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 
 public class ServicesTest {
@@ -66,12 +67,13 @@ public class ServicesTest {
             Client client = Services.handleUriActivation(authResponse, app);
             // Prepare mutable data for the first time
             MDataInfo mDataInfo = Services.prepareMutableData(client, app);
-            int index = 0;
+            int size = 0;
             // add data
-            Services.addTask(mDataInfo, client, index, new Task(randomAlphaNumeric(10), index++));
-            Services.addTask(mDataInfo, client, index, new Task(randomAlphaNumeric(10), index++));
+            Services.addTask(mDataInfo, client, size, new Task(randomAlphaNumeric(10), new Date()));
+            size = Services.listEntries(client, mDataInfo).size();
+            Services.addTask(mDataInfo, client, size, new Task(randomAlphaNumeric(10), new Date()));
             List<Task> taskList = Services.listEntries(client, mDataInfo);
-            Assert.assertEquals(index, taskList.size());
+            Assert.assertEquals(2, taskList.size());
             // update data
             Task t = taskList.get(0);
             t.setComplete(!t.getComplete());

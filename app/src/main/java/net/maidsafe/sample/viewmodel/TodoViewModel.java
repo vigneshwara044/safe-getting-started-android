@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -30,14 +31,12 @@ public class TodoViewModel extends ViewModel implements IFailureHandler, IProgre
     private MutableLiveData<List<Task>> liveTaskList;
     private MutableLiveData<Boolean> loading;
     private List<Task> taskList;
-    private int index;
     private App app;
 
     public TodoViewModel() {
         taskList = new ArrayList<>();
         app = new App("net.maidsafe.sample", "Safe TODO Java",
                 "Maidsafe.net", "0.1.0");
-        index = 0;
         loading = new MutableLiveData<>();
         loading.setValue(false);
     }
@@ -60,10 +59,10 @@ public class TodoViewModel extends ViewModel implements IFailureHandler, IProgre
     }
 
     public void addNewTask(String description) {
-        Task task = new Task(description, index);
+        Task task = new Task(description, new Date());
         new NetworkOperation(this).execute(() -> {
             try {
-                Services.addTask(mDataInfo, client, index, task);
+                Services.addTask(mDataInfo, client, taskList.size(), task);
                 return new Result(null);
             } catch (Exception e) {
                 return new Result(e);
@@ -71,7 +70,6 @@ public class TodoViewModel extends ViewModel implements IFailureHandler, IProgre
 
         }).onResult((result) -> {
             taskList.add(task);
-            index++;
             liveTaskList.setValue(taskList);
         }).onException(this);
 
@@ -168,7 +166,6 @@ public class TodoViewModel extends ViewModel implements IFailureHandler, IProgre
             if (result != null) {
                 taskList = (List<Task>) result;
                 liveTaskList.setValue(taskList);
-                index = taskList.size();
             }
         });
     }
