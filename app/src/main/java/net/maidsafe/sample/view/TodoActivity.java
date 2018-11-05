@@ -11,17 +11,22 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import net.maidsafe.sample.BuildConfig;
 import net.maidsafe.sample.R;
-import net.maidsafe.sample.viewmodel.TodoViewModel;
+import net.maidsafe.sample.model.TodoList;
+import net.maidsafe.sample.viewmodel.ListViewModel;
+import net.maidsafe.sample.viewmodel.SectionViewModel;
 import net.maidsafe.sample.model.Task;
 
 import androidx.navigation.Navigation;
 
-public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFragmentInteractionListener, ListFragment.OnFragmentInteractionListener {
+public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFragmentInteractionListener,
+        ListFragment.OnFragmentInteractionListener, TodoItemDetailsFragment.OnFragmentInteractionListener,
+        ListHomeFragment.OnFragmentInteractionListener {
 
-    TodoViewModel viewModel;
+    SectionViewModel sectionViewModel;
+    ListViewModel listViewModel;
     ProgressBar progressBar;
+    View host;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,14 +37,16 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
             e.printStackTrace();
         }
         super.onCreate(savedInstanceState);
-        viewModel = ViewModelProviders.of(this).get(TodoViewModel.class);
+        sectionViewModel = ViewModelProviders.of(this).get(SectionViewModel.class);
+        listViewModel = ViewModelProviders.of(this).get(ListViewModel.class);
         Intent intent = getIntent();
         Uri data = intent.getData();
         if (data != null) {
-            viewModel.handleUriActivation(data);
+            sectionViewModel.connect(data);
         }
         setContentView(R.layout.activity_auth);
         progressBar = findViewById(R.id.progressBar);
+        host = findViewById(R.id.my_nav_host_fragment);
 
         final Observer<Boolean> loadingObserver = loading -> {
             if (loading) {
@@ -48,31 +55,62 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
                 progressBar.setVisibility(View.INVISIBLE);
             }
         };
-        viewModel.getLoading().observe(this, loadingObserver);
+
+        sectionViewModel.getLoading().observe(this, loadingObserver);
+        listViewModel.getLoading().observe(this, loadingObserver);
     }
 
     public void onFragmentInteraction(View v, Object object) {
         switch (v.getId()) {
             case R.id.authButton:
-                    viewModel.authenticateApplication(getApplicationContext());
-                    Navigation.findNavController(v).navigate(R.id.listFragment);
+                sectionViewModel.authenticateApplication(getApplicationContext());
+                Navigation.findNavController(v).navigate(R.id.listHomeFragment);
+                break;
+            case R.id.new_section_add_section:
+                String sectionTitle = (String) object;
+                sectionViewModel.addSection(sectionTitle);
                 break;
             case R.id.taskDeleteButton:
-                viewModel.deleteTask((Task) object);
+                listViewModel.deleteTask((Task) object);
                 break;
             case R.id.addNewTask:
                 String taskDesc = (String) object;
-                viewModel.addNewTask(taskDesc);
+                listViewModel.addTask(taskDesc);
                 break;
             case R.id.taskCheckbox:
-                viewModel.updateTask((Task) object);
+                listViewModel.updateTask((Task) object);
+                break;
+            case R.id.todoListItem:
+                Bundle task = new Bundle();
+                task.putParcelable("task", (Task) object);
+                Navigation.findNavController(v).navigate(R.id.todoItemDetailsFragment, task);
+                break;
+            case R.id.list_home_card_layout:
+                Bundle listDetails = new Bundle();
+                listDetails.putParcelable("listInfo", (TodoList) object);
+                Navigation.findNavController(v).navigate(R.id.listFragment, listDetails);
                 break;
         }
+    }
+
+    @Override
+    public void setActionBarTitle(String title) {
+        getSupportActionBar().setTitle(title);
     }
 
     @Override
     public boolean onSupportNavigateUp() {
         return Navigation.findNavController(this, R.id.my_nav_host_fragment).navigateUp();
     }
+
+    public void setActionBarText(String text) {
+        getActionBar().setTitle(text);
+    }
+
+    public void showActionBarBack(boolean displayed) {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(displayed);
+        getSupportActionBar().setDisplayShowHomeEnabled(displayed);
+    }
+
 
 }

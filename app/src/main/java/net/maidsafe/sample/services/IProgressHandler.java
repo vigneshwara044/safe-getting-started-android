@@ -1,4 +1,4 @@
-package net.maidsafe.sample.actions;
+package net.maidsafe.sample.services;
 
 public interface IProgressHandler {
     void updateStatus(boolean loading);

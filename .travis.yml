@@ -40,4 +40,4 @@ before_script:
 script:
   - chmod +x gradlew
   - ./gradlew check
-  - ./gradlew connectedMockDebugAndroidTest --info
+  - ./gradlew connectedMockDebugAndroidTest

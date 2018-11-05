@@ -2,6 +2,7 @@ package net.maidsafe.sample.viewmodel;
 
 import android.net.Uri;
 import android.system.Os;
+import android.util.Log;
 
 import net.maidsafe.api.Authenticator;
 import net.maidsafe.api.model.AuthIpcRequest;
@@ -18,9 +19,11 @@ public class AuthService {
         Authenticator authenticator = null;
         try {
             authenticator = Authenticator.createAccount(LOCATOR, PASSWORD, INVITE).get();
+            Log.d("STAGE:","Account created");
         } catch (Exception e) {
             if (e.getMessage().contains(ACCOUNT_EXISTS_CODE)) {
                 authenticator = Authenticator.login(LOCATOR, PASSWORD).get();
+                Log.d("STAGE:","Logged in to existing account");
             }
         }
 

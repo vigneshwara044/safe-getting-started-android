@@ -1,4 +1,4 @@
-package net.maidsafe.sample.actions;
+package net.maidsafe.sample.services;
 
 public interface IFailureHandler {
     void onFailure(Exception e);

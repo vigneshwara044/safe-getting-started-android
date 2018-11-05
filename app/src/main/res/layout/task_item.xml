@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/todoListItem"
     android:layout_width="match_parent"
     android:layout_margin="2dp"
     android:layout_height="wrap_content">
@@ -28,10 +29,13 @@
             android:layout_height="48dp"
             android:gravity="center_vertical"
             android:text="@string/task_placeholder"
+            android:maxLines="1"
+            android:ellipsize="end"
             app:layout_constraintBottom_toBottomOf="@+id/taskDeleteButton"
             app:layout_constraintEnd_toStartOf="@+id/taskDeleteButton"
             app:layout_constraintStart_toEndOf="@+id/taskCheckbox"
             app:layout_constraintTop_toTopOf="@+id/taskDeleteButton"
+            android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
             app:layout_constraintVertical_bias="0.0" />
 
         <Button
@@ -42,7 +46,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
             android:textColor="@android:color/background_light"
-            android:backgroundTint="@color/colorPrimary"
+            android:backgroundTint="@android:color/holo_red_light"
             android:text="@string/delete_button"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

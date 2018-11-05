@@ -1,4 +1,4 @@
-package net.maidsafe.sample.actions;
+package net.maidsafe.sample.services;
 
 public interface ISuccessHandler<T> {
     void onSuccess(T result);

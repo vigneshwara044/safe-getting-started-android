@@ -1,5 +1,8 @@
 package net.maidsafe.sample.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -8,15 +11,15 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Date;
 
-public class Task implements Serializable {
+public class Task implements Serializable, Parcelable {
 
-    // Serial version ID – Just a random number
+    // Serial version ID
     private static final long serialVersionUID = 2645416516514354354L;
 
-    String description;
-    Boolean isComplete;
-    Date date;
-    long version;
+    private String description;
+    private Boolean isComplete;
+    private Date date;
+    private long version;
 
     public Task(String description, Date date) {
         this.date = date;
@@ -25,11 +28,11 @@ public class Task implements Serializable {
         this.version = 0;
     }
 
-    public static byte[] toStream(Task task) {
+    public byte[] toStream() {
         byte[] stream = null;
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             ObjectOutputStream oos = new ObjectOutputStream(baos);) {
-            oos.writeObject(task);
+             ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+            oos.writeObject(this);
             stream = baos.toByteArray();
         } catch (IOException e) {
             e.printStackTrace();
@@ -41,7 +44,7 @@ public class Task implements Serializable {
         Task task = null;
 
         try (ByteArrayInputStream bais = new ByteArrayInputStream(stream);
-             ObjectInputStream ois = new ObjectInputStream(bais);) {
+             ObjectInputStream ois = new ObjectInputStream(bais)) {
             task = (Task) ois.readObject();
         } catch (IOException e) {
             e.printStackTrace();
@@ -77,6 +80,35 @@ public class Task implements Serializable {
 
     public Date getDate() {
         return date;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(description);
+        parcel.writeValue(isComplete);
+        parcel.writeValue(date);
+        parcel.writeLong(version);
+    }
+
+    public static final Parcelable.Creator<Task> CREATOR = new Parcelable.Creator<Task>() {
+        public Task createFromParcel(Parcel parcel) {
+            return new Task(parcel);
+        }
+        public Task[] newArray(int size) {
+            return new Task[size];
+        }
+    };
+
+    public Task(Parcel parcel){
+        description = parcel.readString();
+        isComplete = (Boolean) parcel.readValue(Boolean.class.getClassLoader());
+        date = (Date)parcel.readValue(Date.class.getClassLoader());
+        version = parcel.readLong();
     }
 
 }

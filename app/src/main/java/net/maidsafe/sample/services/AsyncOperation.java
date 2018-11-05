@@ -1,14 +1,14 @@
-package net.maidsafe.sample.actions;
+package net.maidsafe.sample.services;
 
 import android.os.AsyncTask;
 
-public class NetworkOperation<T> extends AsyncTask<IRequest, Void, IResult<T>> {
+public class AsyncOperation<T> extends AsyncTask<IRequest, Void, IResult<T>> {
 
     private ISuccessHandler<T> successHandler;
     private IFailureHandler failureHandler;
     private IProgressHandler progressHandler;
 
-    public NetworkOperation(IProgressHandler handler) {
+    public AsyncOperation(IProgressHandler handler) {
         this.progressHandler = handler;
     }
 
@@ -27,18 +27,18 @@ public class NetworkOperation<T> extends AsyncTask<IRequest, Void, IResult<T>> {
         this.progressHandler.updateStatus(false);
     }
 
-    public NetworkOperation<T> onResult(ISuccessHandler successHandler) {
+    public AsyncOperation<T> onResult(ISuccessHandler successHandler) {
         this.successHandler = successHandler;
         return this;
     }
 
 
-    public NetworkOperation<T> onException(IFailureHandler failureHandler) {
+    public AsyncOperation<T> onException(IFailureHandler failureHandler) {
         this.failureHandler = failureHandler;
         return this;
     }
 
-    public NetworkOperation<T> execute(IRequest<T>... args) {
+    public AsyncOperation<T> execute(IRequest<T>... args) {
         super.execute(args);
         return this;
     }

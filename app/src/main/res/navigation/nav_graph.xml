@@ -11,12 +11,34 @@
         android:label="fragment_auth"
         tools:layout="@layout/fragment_auth" >
         <action
-            android:id="@+id/action_authFragment_to_listFragment"
-            app:destination="@id/listFragment" />
+            android:id="@+id/action_authFragment_to_listHomeFragment"
+            app:destination="@id/listHomeFragment" />
     </fragment>
     <fragment
         android:id="@+id/listFragment"
         android:name="net.maidsafe.sample.view.ListFragment"
         android:label="fragment_list"
-        tools:layout="@layout/fragment_list" ></fragment>
+        tools:layout="@layout/fragment_list" >
+        <action
+            android:id="@+id/action_listFragment_to_todoItemDetailsFragment"
+            app:destination="@id/todoItemDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/todoItemDetailsFragment"
+        android:name="net.maidsafe.sample.view.TodoItemDetailsFragment"
+        android:label="fragment_todo_item_details"
+        tools:layout="@layout/fragment_todo_item_details" />
+    <argument
+        android:name="TodoTask"
+        android:defaultValue="Testing"
+        app:argType="string" />
+    <fragment
+        android:id="@+id/listHomeFragment"
+        android:name="net.maidsafe.sample.view.ListHomeFragment"
+        android:label="fragment_list_home"
+        tools:layout="@layout/fragment_list_home" >
+        <action
+            android:id="@+id/action_listHomeFragment_to_listFragment"
+            app:destination="@id/listFragment" />
+    </fragment>
 </navigation>

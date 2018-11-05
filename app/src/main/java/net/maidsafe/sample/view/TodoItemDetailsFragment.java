@@ -1,56 +1,56 @@
 package net.maidsafe.sample.view;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
-import net.maidsafe.sample.BuildConfig;
 import net.maidsafe.sample.R;
+import net.maidsafe.sample.model.Task;
+import net.maidsafe.sample.viewmodel.SectionViewModel;
 
-public class AuthFragment extends Fragment {
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
+public class TodoItemDetailsFragment extends Fragment {
+
+    private SectionViewModel viewModel;
     private OnFragmentInteractionListener mListener;
 
-    public AuthFragment() {
+    public TodoItemDetailsFragment() {
+        // Required empty public constructor
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        viewModel = ViewModelProviders.of(getActivity()).get(SectionViewModel.class);
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_auth, container, false);
+        return inflater.inflate(R.layout.fragment_todo_item_details, container, false);
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        final Button button = getActivity().findViewById(R.id.authButton);
-        final TextView welcomeMessage = getActivity().findViewById(R.id.auth_welcome_message);
-        if(BuildConfig.FLAVOR.equals("nonMock")) {
-            welcomeMessage.setText(String.format(getString(R.string.welcome_msg), getString(R.string.welcome_msg_live)));
-            button.setText(getString(R.string.auth_button));
-        } else {
-            welcomeMessage.setText(String.format(getString(R.string.welcome_msg), getString(R.string.welcome_msg_dev)));
-        }
-        button.setOnClickListener(this::authAction);
-    }
+        final TextView taskDescription = getActivity().findViewById(R.id.task_description);
+        final TextView taskStatus = getActivity().findViewById(R.id.taskStatus);
+        final TextView taskDueDateTime = getActivity().findViewById(R.id.dueDateTime);
 
-    public void authAction(View v) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(v, null);
-        }
+        Task task = getArguments().getParcelable(getString(R.string.task_argument_string));
+        taskDescription.setText(task.getDescription());
+        taskStatus.setText(task.getComplete()? getString(R.string.complete):getString(R.string.incomplete));
+        SimpleDateFormat format = new SimpleDateFormat("d MMM y", Locale.getDefault());
+        taskDueDateTime.setText(format.format(task.getDate()));
     }
 
     @Override
@@ -73,12 +73,11 @@ public class AuthFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mListener.setActionBarTitle("SAFE Todo");
-        mListener.showActionBarBack(false);
+        mListener.setActionBarTitle("Task details");
+        mListener.showActionBarBack(true);
     }
 
     public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(View v, Object object);
         void setActionBarTitle(String title);
         void showActionBarBack(boolean displayed);
     }

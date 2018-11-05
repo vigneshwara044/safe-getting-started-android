@@ -7,23 +7,23 @@
     android:padding="25dp">
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/newTaskTextLayout"
+        android:id="@+id/new_section_text_input_layout"
         android:layout_width="match_parent"
         android:theme="@style/PopUp"
         android:layout_height="wrap_content">
 
         <EditText
-            android:autofillHints="Add a new task"
-            android:id="@+id/newTaskText"
+            android:autofillHints="Add a list"
+            android:id="@+id/new_section_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/add_task_hint"
+            android:hint="@string/enter_section_title"
             android:inputType="text" />
 
     </android.support.design.widget.TextInputLayout>
 
     <Button
-        android:id="@+id/addNewTask"
+        android:id="@+id/new_section_add_section"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -32,12 +32,12 @@
         android:textColor="@android:color/background_light"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/cancelAddTask"
-        android:text="@string/add_task"
-        app:layout_constraintTop_toBottomOf="@+id/newTaskTextLayout" />
+        app:layout_constraintStart_toEndOf="@+id/new_section_cancel"
+        android:text="@string/add_section"
+        app:layout_constraintTop_toBottomOf="@+id/new_section_text_input_layout" />
 
     <Button
-        android:id="@+id/cancelAddTask"
+        android:id="@+id/new_section_cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -46,10 +46,10 @@
         android:backgroundTint="@color/colorPrimary"
         android:textColor="@android:color/background_light"
         android:text="@string/cancel"
-        app:layout_constraintBottom_toBottomOf="@+id/addNewTask"
-        app:layout_constraintEnd_toStartOf="@+id/addNewTask"
+        app:layout_constraintBottom_toBottomOf="@+id/new_section_add_section"
+        app:layout_constraintEnd_toStartOf="@+id/new_section_add_section"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/newTaskTextLayout"
+        app:layout_constraintTop_toBottomOf="@+id/new_section_text_input_layout"
         app:layout_constraintVertical_bias="0.515" />
 
 </android.support.constraint.ConstraintLayout>
