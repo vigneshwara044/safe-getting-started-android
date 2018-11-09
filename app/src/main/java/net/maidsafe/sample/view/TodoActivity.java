@@ -103,12 +103,17 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
         return Navigation.findNavController(this, R.id.my_nav_host_fragment).navigateUp();
     }
 
+    @Override
+    public void onBackPressed() {
+        listViewModel.clearList();
+        super.onBackPressed();
+    }
+
     public void setActionBarText(String text) {
         getActionBar().setTitle(text);
     }
 
     public void showActionBarBack(boolean displayed) {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(displayed);
         getSupportActionBar().setDisplayShowHomeEnabled(displayed);
     }
 

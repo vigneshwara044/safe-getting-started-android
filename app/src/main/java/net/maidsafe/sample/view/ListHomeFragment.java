@@ -17,6 +17,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -104,6 +105,11 @@ public class ListHomeFragment extends Fragment {
         View dialogView = View.inflate(getActivity(), R.layout.new_section_dialog, null);
 
         final EditText newSectionText = dialogView.findViewById(R.id.new_section_edit_text);
+        newSectionText.setOnFocusChangeListener((v, hasFocus) -> newSectionText.post(() -> {
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(newSectionText, InputMethodManager.SHOW_IMPLICIT);
+        }));
+        newSectionText.requestFocus();
         Button addNewSection = dialogView.findViewById(R.id.new_section_add_section);
         Button cancelAddSection = dialogView.findViewById(R.id.new_section_cancel);
 

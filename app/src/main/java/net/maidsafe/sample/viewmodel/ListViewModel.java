@@ -74,10 +74,8 @@ public class ListViewModel extends ViewModel implements IFailureHandler, IProgre
                 return new Result(e);
             }
         }).onResult(result -> {
-            Log.d("LIST SIZES", "Task list: " + taskList.size() + "\nLiveTaskList: " + liveTaskList.getValue().size());
             taskList.remove(task);
             liveTaskList.setValue(taskList);
-            Log.d("LIST SIZES", "Task list: " + taskList.size() + "\nLiveTaskList: " + liveTaskList.getValue().size());
         }).onException(this);
     }
 
@@ -139,5 +137,10 @@ public class ListViewModel extends ViewModel implements IFailureHandler, IProgre
 
     public void setListDetails(TodoList listInfo) {
         this.listInfo = listInfo;
+    }
+
+    public void clearList() {
+        taskList.clear();
+        liveTaskList.setValue(taskList);
     }
 }
