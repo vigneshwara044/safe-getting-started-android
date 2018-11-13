@@ -18,12 +18,21 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class SafeTodoService implements ITodoService {
+public class SafeTodoService implements ITodoService, net.maidsafe.api.listener.OnDisconnected {
 
     private SafeApi api;
     private MDataInfo appData;
     final App app = new App("net.maidsafe.sample", "Safe TODO Java",
                           "Maidsafe.net", "0.1.0");
+    private OnDisconnected disconectedListner;
+
+    @Override
+    public void disconnected(Object o) {
+        if (disconectedListner == null) {
+            return;
+        }
+        disconectedListner.onDisconnected();
+    }
 
     public SafeTodoService() {
         api = SafeApi.getInstance();
@@ -45,9 +54,10 @@ public class SafeTodoService implements ITodoService {
     }
 
     @Override
-    public void connect(Uri authResponse) throws Exception {
+    public void connect(Uri authResponse, OnDisconnected disconnected) throws Exception {
         String response = authResponse.toString().replaceAll(".*\\/+", "");
-        api.connect(response, app.getId());
+        disconectedListner = disconnected;
+        api.connect(response, app.getId(), this);
     }
 
     @Override
@@ -132,9 +142,13 @@ public class SafeTodoService implements ITodoService {
         return api.getEntriesLength(mDataInfo);
     }
 
+    @Override
+    public void reconnect() throws Exception{
+        api.reconnect();
+    }
+
     private byte[] getByteArray(int x) {
         return ByteBuffer.allocate(4).putInt(x).array();
     }
-
 
 }

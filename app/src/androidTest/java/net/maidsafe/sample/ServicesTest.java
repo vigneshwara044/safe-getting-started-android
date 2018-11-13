@@ -8,8 +8,9 @@ import android.util.Log;
 import net.maidsafe.sample.model.Task;
 import net.maidsafe.sample.model.TodoList;
 import net.maidsafe.sample.services.ITodoService;
+import net.maidsafe.sample.services.OnDisconnected;
 import net.maidsafe.sample.services.SafeTodoService;
-import net.maidsafe.sample.viewmodel.AuthService;
+import net.maidsafe.sample.viewmodel.MockServices;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -22,9 +23,13 @@ import java.util.List;
 public class ServicesTest {
 
     private ITodoService service;
+    private OnDisconnected onDisconnected;
 
     public ServicesTest() {
         service = new SafeTodoService();
+        onDisconnected = () -> {
+          Log.d("STAGE:", "Disconnected from the Network");
+        };
     }
 
     @BeforeClass
@@ -50,17 +55,17 @@ public class ServicesTest {
     public void authResponseTest() throws Exception {
         String APP_ID = "net.maidsafe.sample";
         String authUrl = service.generateAuthURL();
-        Uri authResponse = AuthService.mockAuthenticate(authUrl);
+        Uri authResponse = MockServices.mockAuthenticate(authUrl);
         Assert.assertEquals(authResponse.getScheme(), APP_ID);
-        service.connect(authResponse);
+        service.connect(authResponse, onDisconnected);
     }
 
     @Test
     public void mutableDataTest() throws Exception {
         String authUrl = service.generateAuthURL();
-        Uri authResponse = AuthService.mockAuthenticate(authUrl);
+        Uri authResponse = MockServices.mockAuthenticate(authUrl);
         {
-            service.connect(authResponse);
+            service.connect(authResponse, onDisconnected);
             // Prepare mutable data for the first time
             service.getAppData();
             // add data
@@ -84,7 +89,7 @@ public class ServicesTest {
         }
         // fetching existing data
         ITodoService newConnection = new SafeTodoService();
-        newConnection.connect(authResponse);
+        newConnection.connect(authResponse, onDisconnected);
         newConnection.getAppData();
         List<TodoList> list = service.fetchSections();
         Assert.assertEquals(2, list.size());

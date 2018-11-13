@@ -2,8 +2,6 @@ package net.maidsafe.sample.viewmodel;
 
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
-import android.os.Parcelable;
-import android.util.Log;
 
 import net.maidsafe.safe_app.MDataInfo;
 import net.maidsafe.sample.model.Task;

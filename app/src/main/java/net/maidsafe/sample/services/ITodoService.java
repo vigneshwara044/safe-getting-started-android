@@ -11,7 +11,7 @@ public interface ITodoService {
 
     String generateAuthURL() throws Exception;
 
-    void connect(Uri authResponse) throws Exception;
+    void connect(Uri authResponse, OnDisconnected disconnected) throws Exception;
 
     void getAppData() throws Exception;
 
@@ -30,5 +30,7 @@ public interface ITodoService {
     void updateTaskStatus(Task task, TodoList listInfo) throws Exception;
 
     long getEntriesLength(TodoList listInfo) throws Exception;
+
+    void reconnect() throws Exception;
 
 }

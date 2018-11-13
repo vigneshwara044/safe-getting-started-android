@@ -4,16 +4,24 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.system.Os;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import net.maidsafe.sample.BuildConfig;
 import net.maidsafe.sample.R;
 import net.maidsafe.sample.model.TodoList;
+import net.maidsafe.sample.services.OnDisconnected;
 import net.maidsafe.sample.viewmodel.ListViewModel;
+import net.maidsafe.sample.viewmodel.MockServices;
 import net.maidsafe.sample.viewmodel.SectionViewModel;
 import net.maidsafe.sample.model.Task;
 
@@ -27,6 +35,7 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
     ListViewModel listViewModel;
     ProgressBar progressBar;
     View host;
+    OnDisconnected onDisconnected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,12 +46,23 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
             e.printStackTrace();
         }
         super.onCreate(savedInstanceState);
+        onDisconnected = () -> {
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(() -> {
+                Snackbar.make(findViewById(android.R.id.content), getString(R.string.disconnected_message), Snackbar.LENGTH_INDEFINITE)
+                        .setAction(getString(R.string.reconnect), view -> {
+                            sectionViewModel.reconnect();
+                        })
+                        .show();
+            });
+        };
         sectionViewModel = ViewModelProviders.of(this).get(SectionViewModel.class);
         listViewModel = ViewModelProviders.of(this).get(ListViewModel.class);
         Intent intent = getIntent();
         Uri data = intent.getData();
         if (data != null) {
-            sectionViewModel.connect(data);
+            sectionViewModel.connect(data, onDisconnected);
+
         }
         setContentView(R.layout.activity_auth);
         progressBar = findViewById(R.id.progressBar);
@@ -63,7 +83,7 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
     public void onFragmentInteraction(View v, Object object) {
         switch (v.getId()) {
             case R.id.authButton:
-                sectionViewModel.authenticateApplication(getApplicationContext());
+                sectionViewModel.authenticateApplication(getApplicationContext(), onDisconnected);
                 Navigation.findNavController(v).navigate(R.id.listHomeFragment);
                 break;
             case R.id.new_section_add_section:
@@ -96,6 +116,22 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
     @Override
     public void setActionBarTitle(String title) {
         getSupportActionBar().setTitle(title);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if(BuildConfig.FLAVOR.equals("mock")) {
+            menu.add(Menu.NONE, 3241, Menu.NONE, getString(R.string.simulate_disconnect));
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == 3241) {
+            MockServices.simulateDisconnect();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

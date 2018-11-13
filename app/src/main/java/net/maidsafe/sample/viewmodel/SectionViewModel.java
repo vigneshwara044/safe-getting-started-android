@@ -9,6 +9,7 @@ import net.maidsafe.sample.services.IFailureHandler;
 import net.maidsafe.sample.services.IProgressHandler;
 import net.maidsafe.sample.services.AsyncOperation;
 import net.maidsafe.sample.services.ITodoService;
+import net.maidsafe.sample.services.OnDisconnected;
 import net.maidsafe.sample.services.Result;
 import net.maidsafe.sample.services.SafeTodoService;
 
@@ -51,7 +52,7 @@ public class SectionViewModel extends ViewModel implements IFailureHandler, IPro
         return liveSectionsList;
     }
 
-    public void authenticateApplication(Context context) {
+    public void authenticateApplication(Context context, OnDisconnected disconnected) {
         new AsyncOperation(this).execute(() -> {
             try {
                 String uri = todoService.generateAuthURL();
@@ -61,7 +62,7 @@ public class SectionViewModel extends ViewModel implements IFailureHandler, IPro
             }
         }).onResult(result -> {
             if(BuildConfig.FLAVOR.equals("mock")) {
-                mockAuthentication((String) result);
+                mockAuthentication((String) result, disconnected);
             } else {
                 context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse((String)result)));
             }
@@ -85,10 +86,10 @@ public class SectionViewModel extends ViewModel implements IFailureHandler, IPro
     }
 
 
-    public void connect(Uri data) {
+    public void connect(Uri data, OnDisconnected disconnected) {
         new AsyncOperation(this).execute(() -> {
             try {
-                todoService.connect(data);
+                todoService.connect(data, disconnected);
                 return new Result(null);
             } catch (Exception e) {
                 return new Result(e);
@@ -127,16 +128,16 @@ public class SectionViewModel extends ViewModel implements IFailureHandler, IPro
         });
     }
 
-    public void mockAuthentication(final String uri) {
+    public void mockAuthentication(final String uri, OnDisconnected disconnected) {
         new AsyncOperation<Uri>(this).execute(() -> {
             try {
-                Uri response = AuthService.mockAuthenticate(uri);
+                Uri response = MockServices.mockAuthenticate(uri);
                 return new Result(response);
             } catch (Exception e) {
                 return new Result(e);
             }
         }).onResult(result -> {
-            connect((Uri)result);
+            connect((Uri)result, disconnected);
         }).onException(this);
     }
 
@@ -146,4 +147,16 @@ public class SectionViewModel extends ViewModel implements IFailureHandler, IPro
     }
 
 
+    public void reconnect() {
+        new AsyncOperation(this).execute(() -> {
+           try {
+               todoService.reconnect();
+               return new Result(null);
+           } catch (Exception e) {
+               return new Result(e);
+           }
+        }).onResult(result -> {
+
+        }).onException(this);
+    }
 }

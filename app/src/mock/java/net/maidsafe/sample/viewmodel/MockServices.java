@@ -7,8 +7,13 @@ import android.util.Log;
 import net.maidsafe.api.Authenticator;
 import net.maidsafe.api.model.AuthIpcRequest;
 import net.maidsafe.api.model.IpcRequest;
+import net.maidsafe.sample.services.AsyncOperation;
+import net.maidsafe.sample.services.IFailureHandler;
+import net.maidsafe.sample.services.IProgressHandler;
+import net.maidsafe.sample.services.Result;
+import net.maidsafe.sample.services.SafeApi;
 
-public class AuthService {
+public class MockServices {
 
     private static final String LOCATOR = "locator";
     private static final String PASSWORD = "password";
@@ -39,4 +44,21 @@ public class AuthService {
         return Uri.parse(appId + "://" + response);
     }
 
+    public static void simulateDisconnect(){
+        SafeApi api = SafeApi.getInstance();
+        new AsyncOperation(loading -> {
+
+        }).execute(() -> {
+            try {
+                api.disconnect();
+                return new Result(null);
+            } catch (Exception e) {
+                return new Result(e);
+            }
+        }).onResult(result -> {
+
+        }).onException(e -> {
+           e.printStackTrace();
+        });
+    }
 }

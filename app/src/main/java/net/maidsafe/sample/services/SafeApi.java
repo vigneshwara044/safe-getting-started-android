@@ -4,6 +4,7 @@ import android.util.Log;
 
 import net.maidsafe.api.Client;
 import net.maidsafe.api.Session;
+import net.maidsafe.api.listener.OnDisconnected;
 import net.maidsafe.api.model.AuthResponse;
 import net.maidsafe.api.model.DecodeResult;
 import net.maidsafe.api.model.NativeHandle;
@@ -11,6 +12,7 @@ import net.maidsafe.safe_app.MDataEntry;
 import net.maidsafe.safe_app.MDataInfo;
 import net.maidsafe.safe_app.MDataValue;
 import net.maidsafe.safe_app.PermissionSet;
+import net.maidsafe.sample.viewmodel.MockServices;
 import net.maidsafe.utils.Constants;
 
 import java.util.List;
@@ -23,7 +25,6 @@ public class SafeApi {
     private static boolean loaded = false;
 
     private SafeApi() {
-
     }
 
     public static SafeApi getInstance() {
@@ -40,13 +41,13 @@ public class SafeApi {
     private final String listKey = "myTodoLists";
 
 
-
-    public void connect(String response, String appId) throws Exception {
+    public void connect(String response, String appId, OnDisconnected onDisconnected) throws Exception {
         this.appId = appId;
         DecodeResult decodeResult = Session.decodeIpcMessage(response).get();
         if (decodeResult.getClass().equals(AuthResponse.class)) {
             AuthResponse authResponse = (AuthResponse) decodeResult;
             client = (Client) Session.connect(appId, authResponse.getAuthGranted()).get();
+            client.setOnDisconnectListener(onDisconnected);
             i("STAGE:", "Connected to the SAFE Network");
         } else {
             throw new Exception("Could not connect to the SAFE Network");
@@ -154,4 +155,13 @@ public class SafeApi {
     public MDataInfo deserializeMdInfo(byte[] serializedInfo) throws Exception {
         return client.mData.deserialise(serializedInfo).get();
     }
+
+    public void reconnect() throws Exception {
+        client.reconnect().get();
+    }
+
+    public void disconnect() throws Exception {
+        client.testSimulateDisconnect().get();
+    }
+
 }
