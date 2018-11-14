@@ -1,7 +1,8 @@
 package net.maidsafe.sample.viewmodel;
 
+import android.app.Application;
+import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
 
 import net.maidsafe.sample.BuildConfig;
 import net.maidsafe.sample.model.TodoList;
@@ -21,34 +22,48 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class SectionViewModel extends ViewModel implements IFailureHandler, IProgressHandler {
+public class SectionViewModel extends AndroidViewModel implements IFailureHandler, IProgressHandler {
 
     private MutableLiveData<List<TodoList>> liveSectionsList;
-    private MutableLiveData<Boolean> loading;
+    private MutableLiveData<Integer> status;
+    private MutableLiveData<Boolean> connected;
     private List<TodoList> sectionsList;
     private ITodoService todoService;
+    private String errorMessage;
 
-    public SectionViewModel() {
+    public SectionViewModel(Application application) {
+        super(application);
         sectionsList = new ArrayList<>();
-        loading = new MutableLiveData<>();
-        loading.setValue(false);
-        todoService = new SafeTodoService();
+        status = new MutableLiveData<>();
+        status.setValue(0);
+        connected = new MutableLiveData<>();
+        connected.setValue(false);
+        todoService = new SafeTodoService(application.getApplicationContext());
+        liveSectionsList = new MutableLiveData<>();
+        liveSectionsList.setValue(sectionsList);
     }
 
     @Override
     public void onFailure(Exception e) {
+        errorMessage = e.getMessage();
         e.printStackTrace();
+        status.setValue(-1);
     }
 
-    public MutableLiveData<Boolean> getLoading() {
-        return loading;
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public MutableLiveData<Integer> getStatus() {
+        return status;
+    }
+
+    public MutableLiveData<Boolean> getConnected() {
+        return connected;
     }
 
     public MutableLiveData<List<TodoList>> getSections() {
-        if (liveSectionsList == null) {
-            liveSectionsList = new MutableLiveData<>();
-            liveSectionsList.setValue(sectionsList);
-        }
+        liveSectionsList.setValue(sectionsList);
         return liveSectionsList;
     }
 
@@ -70,7 +85,6 @@ public class SectionViewModel extends ViewModel implements IFailureHandler, IPro
     }
 
     public void addSection(String sectionTitle) {
-
         new AsyncOperation(this).execute(() -> {
             try {
                 TodoList sectionList = todoService.addSection(sectionTitle);
@@ -95,6 +109,7 @@ public class SectionViewModel extends ViewModel implements IFailureHandler, IPro
                 return new Result(e);
             }
         }).onResult((result) -> {
+            connected.setValue(true);
             prepareSections();
         }).onException(this);
     }
@@ -142,10 +157,9 @@ public class SectionViewModel extends ViewModel implements IFailureHandler, IPro
     }
 
     @Override
-    public void updateStatus(boolean isLoading) {
-        loading.setValue(isLoading);
+    public void updateStatus(int status) {
+        this.status.setValue(status);
     }
-
 
     public void reconnect() {
         new AsyncOperation(this).execute(() -> {
@@ -156,7 +170,12 @@ public class SectionViewModel extends ViewModel implements IFailureHandler, IPro
                return new Result(e);
            }
         }).onResult(result -> {
-
+            connected.setValue(true);
         }).onException(this);
+    }
+
+    public void disconnect() {
+        MockServices.simulateDisconnect();
+        connected.setValue(false);
     }
 }

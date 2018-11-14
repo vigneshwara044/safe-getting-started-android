@@ -1,5 +1,5 @@
 package net.maidsafe.sample.services;
 
 public interface IProgressHandler {
-    void updateStatus(boolean loading);
+    void updateStatus(int status);
 }

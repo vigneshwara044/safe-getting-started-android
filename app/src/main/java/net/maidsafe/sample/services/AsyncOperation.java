@@ -14,7 +14,7 @@ public class AsyncOperation<T> extends AsyncTask<IRequest, Void, IResult<T>> {
 
     @Override
     protected void onPreExecute() {
-        this.progressHandler.updateStatus(true);
+        this.progressHandler.updateStatus(1);
     }
 
     @Override
@@ -24,7 +24,7 @@ public class AsyncOperation<T> extends AsyncTask<IRequest, Void, IResult<T>> {
         } else {
             this.successHandler.onSuccess(result.getResult());
         }
-        this.progressHandler.updateStatus(false);
+        this.progressHandler.updateStatus(0);
     }
 
     public AsyncOperation<T> onResult(ISuccessHandler successHandler) {

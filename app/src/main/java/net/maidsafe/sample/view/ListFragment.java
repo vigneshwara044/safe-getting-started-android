@@ -10,6 +10,9 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,7 +63,9 @@ public class ListFragment extends Fragment {
         taskListView = view.findViewById(R.id.taskListView);
         noDataText = view.findViewById(R.id.no_data_list);
         addTaskButton = view.findViewById(R.id.addTaskButton);
-        addTaskButton.setOnClickListener(v -> showAddTaskDialog());
+        addTaskButton.setOnClickListener(v -> {
+            onButtonPressed(v, null);
+        });
 
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -88,30 +93,6 @@ public class ListFragment extends Fragment {
             taskListView.setVisibility(View.VISIBLE);
             noDataText.setVisibility(View.GONE);
         }
-    }
-
-    public void showAddTaskDialog() {
-        final AlertDialog dialogBuilder = new AlertDialog.Builder(getActivity()).create();
-        View dialogView = View.inflate(getActivity(), R.layout.new_task_dialog, null);
-
-        final EditText newTaskText = dialogView.findViewById(R.id.newTaskText);
-        newTaskText.setOnFocusChangeListener((v, hasFocus) -> newTaskText.post(() -> {
-            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(newTaskText, InputMethodManager.SHOW_IMPLICIT);
-        }));
-        newTaskText.requestFocus();
-        Button addNewTask = dialogView.findViewById(R.id.addNewTask);
-        Button cancelAddTask = dialogView.findViewById(R.id.cancelAddTask);
-
-        cancelAddTask.setOnClickListener(view -> dialogBuilder.dismiss());
-        addNewTask.setOnClickListener(view -> {
-            String taskText = newTaskText.getText().toString();
-            onButtonPressed(view, taskText);
-            dialogBuilder.dismiss();
-        });
-
-        dialogBuilder.setView(dialogView);
-        dialogBuilder.show();
     }
 
     public void onButtonPressed(View v, Object object) {
@@ -217,7 +198,10 @@ public class ListFragment extends Fragment {
                 itemClickListener = listener;
                 view.setOnClickListener(this);
                 this.checkBox = view.findViewById(R.id.taskCheckbox);
-                checkBox.setOnClickListener(v -> onButtonPressed(v, taskList.get(getAdapterPosition())));
+                checkBox.setOnClickListener(v -> {
+                    onButtonPressed(v, taskList.get(getAdapterPosition()));
+                    notifyDataSetChanged();
+                });
                 this.taskDescription = view.findViewById(R.id.taskDescription);
                 this.deleteButton = view.findViewById(R.id.taskDeleteButton);
                 this.deleteButton.setOnClickListener(v -> onButtonPressed(v, taskList.get(getAdapterPosition())));

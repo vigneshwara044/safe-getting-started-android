@@ -13,6 +13,9 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,7 +72,9 @@ public class ListHomeFragment extends Fragment {
         listHomeView  = view.findViewById(R.id.list_home_view);
         noDataText = view.findViewById(R.id.no_data_section);
         addSectionButton = view.findViewById(R.id.addSectionButton);
-        addSectionButton.setOnClickListener(v -> showAddSectionDialog());
+        addSectionButton.setOnClickListener(v -> {
+            onButtonPressed(v, null);
+        });
 
         sectionsList = viewModel.getSections().getValue();
         adapter = new ListsHomeAdapter(sectionsList);
@@ -98,30 +103,6 @@ public class ListHomeFragment extends Fragment {
             listHomeView.setVisibility(View.VISIBLE);
             noDataText.setVisibility(View.GONE);
         }
-    }
-
-    public void showAddSectionDialog() {
-        final AlertDialog dialogBuilder = new AlertDialog.Builder(getActivity()).create();
-        View dialogView = View.inflate(getActivity(), R.layout.new_section_dialog, null);
-
-        final EditText newSectionText = dialogView.findViewById(R.id.new_section_edit_text);
-        newSectionText.setOnFocusChangeListener((v, hasFocus) -> newSectionText.post(() -> {
-            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(newSectionText, InputMethodManager.SHOW_IMPLICIT);
-        }));
-        newSectionText.requestFocus();
-        Button addNewSection = dialogView.findViewById(R.id.new_section_add_section);
-        Button cancelAddSection = dialogView.findViewById(R.id.new_section_cancel);
-
-        cancelAddSection.setOnClickListener(view -> dialogBuilder.dismiss());
-        addNewSection.setOnClickListener(view -> {
-            String taskText = newSectionText.getText().toString();
-            onButtonPressed(view, taskText);
-            dialogBuilder.dismiss();
-        });
-
-        dialogBuilder.setView(dialogView);
-        dialogBuilder.show();
     }
 
     public void onButtonPressed(View v, Object object) {

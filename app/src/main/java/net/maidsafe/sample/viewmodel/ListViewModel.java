@@ -1,7 +1,8 @@
 package net.maidsafe.sample.viewmodel;
 
+import android.app.Application;
+import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
 
 import net.maidsafe.safe_app.MDataInfo;
 import net.maidsafe.sample.model.Task;
@@ -18,20 +19,24 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ListViewModel extends ViewModel implements IFailureHandler, IProgressHandler {
+public class ListViewModel extends AndroidViewModel implements IFailureHandler, IProgressHandler {
 
-    private MutableLiveData<Boolean> loading;
+    private MutableLiveData<Integer> status;
     private List<Task> taskList;
     private TodoList listInfo;
     private MDataInfo mdInfo;
     private MutableLiveData<List<Task>> liveTaskList;
     private ITodoService todoService;
+    private String errorMessage;
 
-    public ListViewModel() {
+    public ListViewModel(Application application) {
+        super(application);
         taskList = new ArrayList<>();
-        loading = new MutableLiveData<>();
-        loading.setValue(false);
-        todoService = new SafeTodoService();
+        status = new MutableLiveData<>();
+        status.setValue(0);
+        todoService = new SafeTodoService(application.getApplicationContext());
+        liveTaskList = new MutableLiveData<>();
+        liveTaskList.setValue(taskList);
     }
 
     public TodoList getListInfo() {
@@ -39,10 +44,6 @@ public class ListViewModel extends ViewModel implements IFailureHandler, IProgre
     }
 
     public MutableLiveData<List<Task>> getTaskList() {
-        if (liveTaskList == null) {
-            liveTaskList = new MutableLiveData<>();
-            liveTaskList.setValue(taskList);
-        }
         return liveTaskList;
     }
 
@@ -55,12 +56,10 @@ public class ListViewModel extends ViewModel implements IFailureHandler, IProgre
             } catch (Exception e) {
                 return new Result(e);
             }
-
         }).onResult((result) -> {
             taskList.add(task);
             liveTaskList.setValue(taskList);
         }).onException(this);
-
     }
 
     public void deleteTask(Task task) {
@@ -80,14 +79,12 @@ public class ListViewModel extends ViewModel implements IFailureHandler, IProgre
     public void updateTask(Task task) {
         new AsyncOperation(this).execute(() -> {
             try {
-//                Services.updateEntry(mDataInfo, client, task);
                 todoService.updateTaskStatus(task, listInfo);
                 return new Result(null);
             } catch (Exception e) {
                 return new Result(e);
             }
         }).onResult(result -> {
-
         }).onException(this);
 
     }
@@ -110,27 +107,27 @@ public class ListViewModel extends ViewModel implements IFailureHandler, IProgre
 
     public void prepareList() {
         try {
-            mdInfo = SafeApi.getInstance().deserializeMdInfo(listInfo.getContent());
+            mdInfo = SafeApi.getInstance(null).deserializeMdInfo(listInfo.getContent());
             fetchListItems();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-
-
     @Override
     public void onFailure(Exception e) {
+        errorMessage = e.getMessage();
         e.printStackTrace();
+        status.setValue(-2);
     }
 
     @Override
-    public void updateStatus(boolean isLoading) {
-        loading.setValue(isLoading);
+    public void updateStatus(int status) {
+        this.status.setValue(status);
     }
 
-    public MutableLiveData<Boolean> getLoading() {
-        return loading;
+    public MutableLiveData<Integer> getStatus() {
+        return status;
     }
 
     public void setListDetails(TodoList listInfo) {
@@ -139,6 +136,12 @@ public class ListViewModel extends ViewModel implements IFailureHandler, IProgre
 
     public void clearList() {
         taskList.clear();
-        liveTaskList.setValue(taskList);
+        if(liveTaskList != null) {
+            liveTaskList.setValue(taskList);
+        }
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
     }
 }
