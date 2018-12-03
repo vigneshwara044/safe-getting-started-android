@@ -3,8 +3,8 @@ package net.maidsafe.sample.viewmodel;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.MutableLiveData;
+import android.util.Log;
 
-import net.maidsafe.safe_app.MDataInfo;
 import net.maidsafe.sample.model.Task;
 import net.maidsafe.sample.model.TodoList;
 import net.maidsafe.sample.services.AsyncOperation;
@@ -12,7 +12,6 @@ import net.maidsafe.sample.services.IFailureHandler;
 import net.maidsafe.sample.services.IProgressHandler;
 import net.maidsafe.sample.services.ITodoService;
 import net.maidsafe.sample.services.Result;
-import net.maidsafe.sample.services.SafeApi;
 import net.maidsafe.sample.services.SafeTodoService;
 
 import java.util.ArrayList;
@@ -21,15 +20,16 @@ import java.util.List;
 
 public class ListViewModel extends AndroidViewModel implements IFailureHandler, IProgressHandler {
 
-    private MutableLiveData<Integer> status;
+    private static final Integer LIST_ERRROR = -2;
+    private final MutableLiveData<Integer> status;
     private List<Task> taskList;
     private TodoList listInfo;
-    private MDataInfo mdInfo;
-    private MutableLiveData<List<Task>> liveTaskList;
-    private ITodoService todoService;
+//    private MDataInfo mdInfo;
+    private final MutableLiveData<List<Task>> liveTaskList;
+    private final ITodoService todoService;
     private String errorMessage;
 
-    public ListViewModel(Application application) {
+    public ListViewModel(final Application application) {
         super(application);
         taskList = new ArrayList<>();
         status = new MutableLiveData<>();
@@ -47,8 +47,8 @@ public class ListViewModel extends AndroidViewModel implements IFailureHandler, 
         return liveTaskList;
     }
 
-    public void addTask(String description) {
-        Task task = new Task(description, new Date());
+    public void addTask(final String description) {
+        final Task task = new Task(description, new Date());
         new AsyncOperation(this).execute(() -> {
             try {
                 todoService.addTask(task, listInfo);
@@ -62,7 +62,7 @@ public class ListViewModel extends AndroidViewModel implements IFailureHandler, 
         }).onException(this);
     }
 
-    public void deleteTask(Task task) {
+    public void deleteTask(final Task task) {
         new AsyncOperation(this).execute(() -> {
             try {
                 todoService.deleteTask(task, listInfo);
@@ -76,7 +76,7 @@ public class ListViewModel extends AndroidViewModel implements IFailureHandler, 
         }).onException(this);
     }
 
-    public void updateTask(Task task) {
+    public void updateTask(final Task task) {
         new AsyncOperation(this).execute(() -> {
             try {
                 todoService.updateTaskStatus(task, listInfo);
@@ -92,7 +92,7 @@ public class ListViewModel extends AndroidViewModel implements IFailureHandler, 
     private void fetchListItems() {
         new AsyncOperation(this).execute(() -> {
             try {
-                List<Task> list = todoService.fetchListItems(listInfo);
+                final List<Task> list = todoService.fetchListItems(listInfo);
                 return new Result<List>(list);
             } catch (Exception e) {
                 return new Result(e);
@@ -107,36 +107,36 @@ public class ListViewModel extends AndroidViewModel implements IFailureHandler, 
 
     public void prepareList() {
         try {
-            mdInfo = SafeApi.getInstance(null).deserializeMdInfo(listInfo.getContent());
+//            mdInfo = SafeApi.getInstance(null).deserializeMdInfo(listInfo.getContent());
             fetchListItems();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("INFO:", "Unable to fetch data");
         }
     }
 
     @Override
-    public void onFailure(Exception e) {
+    public void onFailure(final Exception e) {
         errorMessage = e.getMessage();
-        e.printStackTrace();
-        status.setValue(-2);
+        Log.e("INFO:", errorMessage);
+        status.setValue(LIST_ERRROR);
     }
 
     @Override
-    public void updateStatus(int status) {
-        this.status.setValue(status);
+    public void updateStatus(final int s) {
+        this.status.setValue(s);
     }
 
     public MutableLiveData<Integer> getStatus() {
         return status;
     }
 
-    public void setListDetails(TodoList listInfo) {
-        this.listInfo = listInfo;
+    public void setListDetails(final TodoList todoList) {
+        this.listInfo = todoList;
     }
 
     public void clearList() {
         taskList.clear();
-        if(liveTaskList != null) {
+        if (liveTaskList != null) {
             liveTaskList.setValue(taskList);
         }
     }

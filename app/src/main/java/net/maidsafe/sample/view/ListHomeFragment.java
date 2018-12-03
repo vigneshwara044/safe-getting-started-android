@@ -9,20 +9,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import net.maidsafe.sample.R;
@@ -45,10 +38,11 @@ public class ListHomeFragment extends Fragment {
 
     public ListHomeFragment() {
         // Required empty public constructor
+        super();
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         viewModel = ViewModelProviders.of(getActivity()).get(SectionViewModel.class);
 
@@ -65,10 +59,10 @@ public class ListHomeFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull final LayoutInflater inflater, final ViewGroup container,
+                             final Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view =  inflater.inflate(R.layout.fragment_list_home, container, false);
+        final View view =  inflater.inflate(R.layout.fragment_list_home, container, false);
         listHomeView  = view.findViewById(R.id.list_home_view);
         noDataText = view.findViewById(R.id.no_data_section);
         addSectionButton = view.findViewById(R.id.addSectionButton);
@@ -78,7 +72,7 @@ public class ListHomeFragment extends Fragment {
 
         sectionsList = viewModel.getSections().getValue();
         adapter = new ListsHomeAdapter(sectionsList);
-        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 2);
+        final RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 2);
         listHomeView.setLayoutManager(mLayoutManager);
         listHomeView.addItemDecoration(new GridSpacingItemDecoration(2, dpToPx(1), true));
         listHomeView.setItemAnimator(new DefaultItemAnimator());
@@ -96,7 +90,7 @@ public class ListHomeFragment extends Fragment {
     }
 
     private void updateView() {
-        if(sectionsList.isEmpty()) {
+        if (sectionsList.isEmpty()) {
             listHomeView.setVisibility(View.GONE);
             noDataText.setVisibility(View.VISIBLE);
         } else {
@@ -105,25 +99,25 @@ public class ListHomeFragment extends Fragment {
         }
     }
 
-    public void onButtonPressed(View v, Object object) {
+    public void onButtonPressed(final View v, final Object object) {
         if (mListener != null) {
             mListener.onFragmentInteraction(v, object);
         }
     }
 
-    public void onItemClicked(View v, Object object) {
+    public void onItemClicked(final View v, final Object object) {
         if (mListener != null) {
             mListener.onFragmentInteraction(v, object);
         }
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(final Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
-            throw new RuntimeException(context.toString()
+            throw new java.lang.RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
     }
@@ -142,41 +136,43 @@ public class ListHomeFragment extends Fragment {
 
     public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
 
-        private int spanCount;
-        private int spacing;
-        private boolean includeEdge;
+        private final int spanCount;
+        private final int spacing;
+        private final boolean includeEdge;
 
-        public GridSpacingItemDecoration(int spanCount, int spacing, boolean includeEdge) {
+        public GridSpacingItemDecoration(final int spanCount, final int spacing, final boolean includeEdge) {
+            super();
             this.spanCount = spanCount;
             this.spacing = spacing;
             this.includeEdge = includeEdge;
         }
 
         @Override
-        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-            int position = parent.getChildAdapterPosition(view);
-            int column = position % spanCount;
+        public void getItemOffsets(final Rect rect, final View view, final RecyclerView parent,
+                                   final RecyclerView.State state) {
+            final int position = parent.getChildAdapterPosition(view);
+            final int column = position % spanCount;
 
             if (includeEdge) {
-                outRect.left = spacing - column * spacing / spanCount;
-                outRect.right = (column + 1) * spacing / spanCount;
+                rect.left = spacing - column * spacing / spanCount;
+                rect.right = (column + 1) * spacing / spanCount;
 
                 if (position < spanCount) {
-                    outRect.top = spacing;
+                    rect.top = spacing;
                 }
-                outRect.bottom = spacing;
+                rect.bottom = spacing;
             } else {
-                outRect.left = column * spacing / spanCount;
-                outRect.right = spacing - (column + 1) * spacing / spanCount;
+                rect.left = column * spacing / spanCount;
+                rect.right = spacing - (column + 1) * spacing / spanCount;
                 if (position >= spanCount) {
-                    outRect.top = spacing;
+                    rect.top = spacing;
                 }
             }
         }
     }
 
-    private int dpToPx(int dp) {
-        Resources r = getResources();
+    private int dpToPx(final int dp) {
+        final Resources r = getResources();
         return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
     }
 
@@ -184,11 +180,12 @@ public class ListHomeFragment extends Fragment {
 
         private List<TodoList> sectionsList;
 
-        public ListsHomeAdapter(List<TodoList> sectionsList) {
+        ListsHomeAdapter(final List<TodoList> sectionsList) {
+            super();
             this.sectionsList = sectionsList;
         }
 
-        public void updateList(List<TodoList> sections) {
+        public void updateList(final List<TodoList> sections) {
             this.sectionsList = sections;
             notifyDataSetChanged();
         }
@@ -198,11 +195,11 @@ public class ListHomeFragment extends Fragment {
         }
 
         @Override
-        public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
+        public MyViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
+            final View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.list_home_card, parent, false);
 
-            ItemClickedListener listener = (itemView, task) -> {
+            final ItemClickedListener listener = (itemView, task) -> {
                 onItemClicked(itemView, task);
             };
 
@@ -210,7 +207,7 @@ public class ListHomeFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull final MyViewHolder holder, final int position) {
             holder.title.setText(sectionsList.get(position).getListTitle());
         }
 
@@ -221,11 +218,11 @@ public class ListHomeFragment extends Fragment {
 
         public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-            private ItemClickedListener itemClickListener;
-            public TextView title;
+            private final ItemClickedListener itemClickListener;
+            private final TextView title;
             SectionViewModel viewModel;
 
-            public MyViewHolder(View view, ItemClickedListener listener) {
+            MyViewHolder(final View view, final ItemClickedListener listener) {
                 super(view);
                 itemClickListener = listener;
                 view.setOnClickListener(this);
@@ -234,7 +231,7 @@ public class ListHomeFragment extends Fragment {
             }
 
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 itemClickListener.onClick(view, sectionsList.get(getAdapterPosition()));
             }
         }

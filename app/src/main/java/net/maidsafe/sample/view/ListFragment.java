@@ -7,19 +7,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import net.maidsafe.sample.R;
@@ -41,10 +35,12 @@ public class ListFragment extends Fragment {
 
 
     public ListFragment() {
+        // Required empty public constructor
+        super();
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         viewModel = ViewModelProviders.of(getActivity()).get(ListViewModel.class);
         viewModel.setListDetails(getArguments().getParcelable("listInfo"));
@@ -56,9 +52,9 @@ public class ListFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_list, container, false);
+    public View onCreateView(@NonNull final LayoutInflater inflater, final ViewGroup container,
+                             final Bundle savedInstanceState) {
+        final View view = inflater.inflate(R.layout.fragment_list, container, false);
 
         taskListView = view.findViewById(R.id.taskListView);
         noDataText = view.findViewById(R.id.no_data_list);
@@ -86,7 +82,7 @@ public class ListFragment extends Fragment {
     }
 
     public void updateView() {
-        if(taskList.isEmpty()) {
+        if (taskList.isEmpty()) {
             taskListView.setVisibility(View.GONE);
             noDataText.setVisibility(View.VISIBLE);
         } else {
@@ -95,25 +91,25 @@ public class ListFragment extends Fragment {
         }
     }
 
-    public void onButtonPressed(View v, Object object) {
+    public void onButtonPressed(final View v, final Object object) {
         if (mListener != null) {
             mListener.onFragmentInteraction(v, object);
         }
     }
 
-    public void onItemClicked(View v, Object object) {
+    public void onItemClicked(final View v, final Object object) {
         if (mListener != null) {
             mListener.onFragmentInteraction(v, object);
         }
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(final Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
-            throw new RuntimeException(context.toString()
+            throw new java.lang.RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
     }
@@ -142,36 +138,31 @@ public class ListFragment extends Fragment {
 
         private List<Task> taskList;
 
-        ListAdapter(List<Task> taskList) {
+        ListAdapter(final List<Task> taskList) {
+            super();
             this.taskList = taskList;
-
         }
 
         private List<Task> getTaskList() {
             return taskList;
         }
 
-        public void updateList(List<Task> tasks) {
+        public void updateList(final List<Task> tasks) {
             this.taskList = tasks;
             notifyDataSetChanged();
         }
 
         @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.task_item, parent, false);
-
-            ItemClickedListener listener = (itemView, task) -> {
+        public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
+            final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.task_item, parent, false);
+            final ItemClickedListener listener = (itemView, task) -> {
                 onItemClicked(itemView, task);
             };
-
-            ViewHolder viewHolder = new ViewHolder(view, listener);
-            return viewHolder;
-
+            return new ViewHolder(view, listener);
         }
 
         @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
 
             holder.checkBox.setChecked(taskList.get(position).getComplete());
             holder.taskDescription.setText(taskList.get(position).getDescription());
@@ -180,20 +171,23 @@ public class ListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            if (taskList != null)
-                return taskList.size();
-            else
-                return 0;
+            int size;
+            if (taskList != null) {
+                size = taskList.size();
+            } else {
+                size = 0;
+            }
+            return size;
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-            private ItemClickedListener itemClickListener;
+            private final ItemClickedListener itemClickListener;
             CheckBox checkBox;
             TextView taskDescription;
             Button deleteButton;
 
-            public ViewHolder(View view, ItemClickedListener listener) {
+            public ViewHolder(final View view, final ItemClickedListener listener) {
                 super(view);
                 itemClickListener = listener;
                 view.setOnClickListener(this);
@@ -208,7 +202,7 @@ public class ListFragment extends Fragment {
             }
 
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 itemClickListener.onClick(view, taskList.get(getAdapterPosition()));
             }
         }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import net.maidsafe.api.Client;
+import net.maidsafe.api.Constants;
 import net.maidsafe.api.Session;
 import net.maidsafe.api.listener.OnDisconnected;
 import net.maidsafe.api.model.AuthResponse;
@@ -13,61 +14,60 @@ import net.maidsafe.safe_app.MDataEntry;
 import net.maidsafe.safe_app.MDataInfo;
 import net.maidsafe.safe_app.MDataValue;
 import net.maidsafe.safe_app.PermissionSet;
-import net.maidsafe.utils.Constants;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
-import static android.util.Log.i;
+public final class SafeApi {
 
-public class SafeApi {
-
-    private static final SafeApi instance = new SafeApi();
-    private static boolean loaded = false;
+    private static final SafeApi INSTANCE = new SafeApi();
+    private static boolean loaded;
+    private Session session;
+    private String appId;
+    private static final String LIST_KEY = "myTodoLists";
+    private static final String APP_CONTAINER_NAME = "apps/";
+    private static final String NO_SUCH_DATA_ERROR_CODE = "-106";
+    private static final String DATA_NOT_FOUND_EXCEPTION = "-103";
+    private static final int TYPE_TAG = 16290;
 
     private SafeApi() {
     }
 
-    public static SafeApi getInstance(Context context) throws Exception{
-        if (loaded) {
-            return  instance;
+    public static SafeApi getInstance(final Context context) {
+        if (!loaded) {
+            Client.load(context);
+            loaded = true;
         }
-        Client.load(context);
-        loaded = true;
-        return instance;
+        return INSTANCE;
     }
 
-    private Session session;
-    private String appId;
-    private final String listKey = "myTodoLists";
-
-    public void connect(String response, String appId, OnDisconnected onDisconnected) throws Exception {
-        this.appId = appId;
-        DecodeResult decodeResult = Session.decodeIpcMessage(response).get();
+    public void connect(final String response, final String applicationId,
+                        final OnDisconnected onDisconnected) throws Exception {
+        this.appId = applicationId;
+        final DecodeResult decodeResult = Session.decodeIpcMessage(response).get();
         if (decodeResult.getClass().equals(AuthResponse.class)) {
-            AuthResponse authResponse = (AuthResponse) decodeResult;
-            session = Client.connect(appId, authResponse.getAuthGranted()).get();
+            final AuthResponse authResponse = (AuthResponse) decodeResult;
+            session = Client.connect(applicationId, authResponse.getAuthGranted()).get();
             session.setOnDisconnectListener(onDisconnected);
-            i("STAGE:", "Connected to the SAFE Network");
+            Log.i("STAGE:", "Connected to the SAFE Network");
         } else {
-            throw new Exception("Could not connect to the SAFE Network");
+            throw new java.lang.Exception("Could not connect to the SAFE Network");
         }
     }
 
     public MDataInfo getSectionsFromAppContainer() throws Exception {
-        final String APP_CONTAINER_NAME = "apps/";
-        final String NO_SUCH_DATA_ERROR_CODE = "-106";
         MDataInfo info;
 
-        MDataInfo appContainerInfo = session.getContainerMDataInfo(APP_CONTAINER_NAME + appId).get();
-        byte[] key = listKey.getBytes();
+        final MDataInfo appContainerInfo = session.getContainerMDataInfo(APP_CONTAINER_NAME + appId).get();
+        final byte[] key = LIST_KEY.getBytes();
         try {
-            MDataValue mDataValue = session.mData.getValue(appContainerInfo, key).get();
-            if(mDataValue.getContentLen() <= 0) {
+            final MDataValue mDataValue = session.mData.getValue(appContainerInfo, key).get();
+            if (mDataValue.getContentLen() <= 0) {
                 info = initAppData(appContainerInfo);
             } else {
                 info = session.mData.deserialise(mDataValue.getContent()).get();
             }
-        } catch (Exception e) {
+        } catch (ExecutionException e) {
             if (e.getMessage().contains(NO_SUCH_DATA_ERROR_CODE)) {
                 info = initAppData(appContainerInfo);
             } else {
@@ -77,81 +77,81 @@ public class SafeApi {
         return info;
     }
 
-    public MDataInfo initAppData(MDataInfo appContainerInfo) throws Exception {
-        MDataInfo mdInfo = newMutableData(16290);
+    public MDataInfo initAppData(final MDataInfo appContainerInfo) throws Exception {
+        final MDataInfo mdInfo = newMutableData(TYPE_TAG);
         saveMdInfo(appContainerInfo, mdInfo);
         return  mdInfo;
     }
 
-    public List<MDataEntry> getEntries(MDataInfo mDataInfo) throws Exception{
-        NativeHandle entryHandle = session.mData.getEntriesHandle(mDataInfo).get();
-        List<MDataEntry> entries = session.mDataEntries.listEntries(entryHandle).get();
-        return entries;
+    public List<MDataEntry> getEntries(final MDataInfo mDataInfo) throws Exception {
+        final NativeHandle entryHandle = session.mData.getEntriesHandle(mDataInfo).get();
+        return session.mDataEntries.listEntries(entryHandle).get();
     }
 
-    public void insertPermissions(MDataInfo mDataInfo) throws Exception {
-        PermissionSet permissionSet = new PermissionSet();
+    public void insertPermissions(final MDataInfo mDataInfo) throws Exception {
+        final PermissionSet permissionSet = new PermissionSet();
         permissionSet.setInsert(true);
         permissionSet.setUpdate(true);
         permissionSet.setRead(true);
         permissionSet.setDelete(true);
-        NativeHandle permissionHandle = session.mDataPermission.newPermissionHandle().get();
+        final NativeHandle permissionHandle = session.mDataPermission.newPermissionHandle().get();
         session.mDataPermission.insert(permissionHandle, session.crypto.getAppPublicSignKey().get(),
                 permissionSet).get();
 
-        session.mData.put(mDataInfo, permissionHandle, Constants.ANYONE_HANDLE).get();
+        session.mData.put(mDataInfo, permissionHandle, Constants.ZERO_HANDLE).get();
         Log.i("STAGE:", "MData PUT is complete");
     }
 
-    public void addEntry(byte[] key, byte[] value, MDataInfo mDataInfo) throws Exception{
-        NativeHandle actionHandle = session.mDataEntryAction.newEntryAction().get();
+    public void addEntry(final byte[] key, final byte[] value, final MDataInfo mDataInfo) throws Exception {
+        final NativeHandle actionHandle = session.mDataEntryAction.newEntryAction().get();
         session.mDataEntryAction.insert(actionHandle, key, value).get();
         session.mData.mutateEntries(mDataInfo, actionHandle).get();
     }
 
-    public void deleteEntry(byte[] key, long version, MDataInfo mDataInfo) throws Exception {
-        NativeHandle actionHandle = session.mDataEntryAction.newEntryAction().get();
+    public void deleteEntry(final byte[] key, final long version, final MDataInfo mDataInfo) throws Exception {
+        final NativeHandle actionHandle = session.mDataEntryAction.newEntryAction().get();
         session.mDataEntryAction.delete(actionHandle, key, version).get();
         session.mData.mutateEntries(mDataInfo, actionHandle).get();
     }
 
-    public void updateEntry(byte[] key, byte[] newValue, long version, MDataInfo mDataInfo) throws Exception {
-        NativeHandle actionHandle = session.mDataEntryAction.newEntryAction().get();
+    public void updateEntry(final byte[] key, final byte[] newValue, final long version,
+                            final MDataInfo mDataInfo) throws Exception {
+        final NativeHandle actionHandle = session.mDataEntryAction.newEntryAction().get();
         session.mDataEntryAction.update(actionHandle, key, newValue, version).get();
         session.mData.mutateEntries(mDataInfo, actionHandle).get();
     }
 
-    public long getEntriesLength(MDataInfo mDataInfo) throws Exception {
-        final String DATA_NOT_FOUND_EXCEPTION = "-103";
+    public long getEntriesLength(final MDataInfo mDataInfo) throws Exception {
+        long length;
         try {
-            NativeHandle entriesHandle = session.mData.getEntriesHandle(mDataInfo).get();
-            return session.mDataEntries.length(entriesHandle).get();
-        } catch (Exception e) {
-            if(e.getMessage().contains(DATA_NOT_FOUND_EXCEPTION)) {
-                return 0;
+            final NativeHandle entriesHandle = session.mData.getEntriesHandle(mDataInfo).get();
+            length = session.mDataEntries.length(entriesHandle).get();
+        } catch (ExecutionException e) {
+            if (e.getMessage().contains(DATA_NOT_FOUND_EXCEPTION)) {
+                length = 0;
             } else {
                 throw e;
             }
         }
+        return length;
     }
 
-    public MDataInfo newMutableData(long tagType) throws Exception{
-        MDataInfo listInfo = session.mData.getRandomPrivateMData(tagType).get();
-        return listInfo;
+    public MDataInfo newMutableData(final long tagType) throws Exception {
+        return session.mData.getRandomPrivateMData(tagType).get();
     }
 
-    private void saveMdInfo(MDataInfo appContainerInfo, MDataInfo mDataInfo) throws Exception {
-        byte[] serializedMdInfo = session.mData.serialise(mDataInfo).get();
-        NativeHandle containerEntry = session.mDataEntryAction.newEntryAction().get();
-        session.mDataEntryAction.insert(containerEntry, listKey.getBytes(), serializedMdInfo).get();
+    private void saveMdInfo(final MDataInfo appContainerInfo, final MDataInfo mDataInfo) throws Exception {
+        final byte[] serializedMdInfo = session.mData.serialise(mDataInfo).get();
+        final NativeHandle containerEntry = session.mDataEntryAction.newEntryAction().get();
+        session.mDataEntryAction.insert(containerEntry, LIST_KEY.getBytes(), serializedMdInfo).get();
         session.mData.mutateEntries(appContainerInfo, containerEntry);
     }
 
-    public byte[] serializeMdInfo(MDataInfo mDataInfo) throws Exception {
+    public byte[] serializeMdInfo(final MDataInfo mDataInfo) throws Exception {
         return session.mData.serialise(mDataInfo).get();
     }
 
-    public MDataInfo deserializeMdInfo(byte[] serializedInfo) throws Exception {
+    public MDataInfo deserializeMdInfo(final byte[] serializedInfo) throws Exception {
         return session.mData.deserialise(serializedInfo).get();
     }
 

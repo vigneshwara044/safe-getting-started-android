@@ -14,7 +14,7 @@
 
         <EditText
             android:autofillHints="Add a new task"
-            android:id="@+id/newTaskText"
+            android:id="@+id/new_task_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/add_task_hint"
@@ -23,7 +23,7 @@
     </android.support.design.widget.TextInputLayout>
 
     <Button
-        android:id="@+id/addNewTask"
+        android:id="@+id/new_task_add_task"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:enabled="false"
@@ -33,12 +33,12 @@
         android:textColor="@android:color/background_light"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/cancelAddTask"
+        app:layout_constraintStart_toEndOf="@+id/new_task_cancel"
         android:text="@string/add_task"
         app:layout_constraintTop_toBottomOf="@+id/newTaskTextLayout" />
 
     <Button
-        android:id="@+id/cancelAddTask"
+        android:id="@+id/new_task_cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -47,8 +47,8 @@
         android:background="@drawable/sample_button"
         android:textColor="@android:color/background_light"
         android:text="@string/cancel"
-        app:layout_constraintBottom_toBottomOf="@+id/addNewTask"
-        app:layout_constraintEnd_toStartOf="@+id/addNewTask"
+        app:layout_constraintBottom_toBottomOf="@+id/new_task_add_task"
+        app:layout_constraintEnd_toStartOf="@+id/new_task_add_task"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/newTaskTextLayout"
         app:layout_constraintVertical_bias="0.515" />

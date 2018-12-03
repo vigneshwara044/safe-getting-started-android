@@ -1,5 +1,16 @@
+buildscript {
+    repositories {
+        jcenter()
+        google()
+    }
+    dependencies {
+        classpath "android.arch.navigation:navigation-safe-args-gradle-plugin:1.0.0-alpha07"
+    }
+}
 apply plugin: 'com.android.application'
 apply plugin: 'androidx.navigation.safeargs'
+apply plugin: 'checkstyle'
+apply plugin: 'pmd'
 
 android {
     compileSdkVersion 28
@@ -40,7 +51,6 @@ dependencies {
         maven {
             url "https://dl.bintray.com/lionel1704/maven"
         }
-
     }
     mockImplementation 'net.maidsafe:safe-app-android-dev:0.1.0'
     nonMockImplementation 'net.maidsafe:safe-app-android:0.1.0'
@@ -60,13 +70,23 @@ dependencies {
     def lifecycle_version = "1.1.1"
     implementation "android.arch.lifecycle:extensions:$lifecycle_version"
 }
-
-buildscript {
-    repositories {
-        jcenter()
-        google()
-    }
-    dependencies {
-        classpath "android.arch.navigation:navigation-safe-args-gradle-plugin:1.0.0-alpha07"
+task checkstyle(type: Checkstyle) {
+    configFile file("${project.rootDir}/config/checkstyle/checkstyle.xml")
+    source 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+    classpath = files()
+}
+task pmd(type: Pmd) {
+    ruleSetFiles = files("${project.rootDir}/config/pmd/pmd-ruleset.xml")
+    source 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+    exclude '**/ServicesTest.java'
+    reports {
+        xml.enabled = false
+        html.enabled = true
     }
 }
+check.dependsOn('checkstyle')
+check.dependsOn('pmd')

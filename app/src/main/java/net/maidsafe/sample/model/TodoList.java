@@ -2,6 +2,7 @@ package net.maidsafe.sample.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -22,7 +23,7 @@ public class TodoList implements Serializable, Parcelable {
     private long version;
 
 
-    public TodoList(String listTitle, Date date, byte[] content) {
+    public TodoList(final String listTitle, final Date date, final byte[] content) {
         this.listTitle = listTitle;
         this.date = date;
         this.content = content;
@@ -40,26 +41,26 @@ public class TodoList implements Serializable, Parcelable {
             oos.writeObject(this);
             stream = baos.toByteArray();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("ERROR:", e.getMessage());
         }
         return stream;
     }
 
-    public static TodoList getListInfo(byte[] stream) {
+    public static TodoList getListInfo(final byte[] stream) {
         TodoList todoList = null;
 
         try (ByteArrayInputStream bais = new ByteArrayInputStream(stream);
              ObjectInputStream ois = new ObjectInputStream(bais)) {
             todoList = (TodoList) ois.readObject();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("ERROR:", e.getMessage());
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            Log.e("ERROR:", e.getMessage());
         }
         return todoList;
     }
 
-    public void setListTitle(String listTitle) {
+    public void setListTitle(final String listTitle) {
         this.listTitle = listTitle;
     }
 
@@ -67,7 +68,7 @@ public class TodoList implements Serializable, Parcelable {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(final Date date) {
         this.date = date;
     }
 
@@ -75,7 +76,7 @@ public class TodoList implements Serializable, Parcelable {
         return content;
     }
 
-    public void setContent(byte[] content) {
+    public void setContent(final byte[] content) {
         this.content = content;
     }
 
@@ -83,7 +84,7 @@ public class TodoList implements Serializable, Parcelable {
         return version;
     }
 
-    public void setVersion(long version) {
+    public void setVersion(final long version) {
         this.version = version;
     }
 
@@ -94,7 +95,7 @@ public class TodoList implements Serializable, Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel parcel, int i) {
+    public void writeToParcel(final Parcel parcel, final int i) {
         parcel.writeString(listTitle);
         parcel.writeValue(date);
         parcel.writeByteArray(content);
@@ -102,15 +103,15 @@ public class TodoList implements Serializable, Parcelable {
     }
 
     public static final Parcelable.Creator<TodoList> CREATOR = new Parcelable.Creator<TodoList>() {
-        public TodoList createFromParcel(Parcel parcel) {
+        public TodoList createFromParcel(final Parcel parcel) {
             return new TodoList(parcel);
         }
-        public TodoList[] newArray(int size) {
+        public TodoList[] newArray(final int size) {
             return new TodoList[size];
         }
     };
 
-    private TodoList(Parcel parcel) {
+    public TodoList(final Parcel parcel) {
         listTitle = parcel.readString();
         date = (Date) parcel.readValue(Date.class.getClassLoader());
         parcel.readByteArray(content);

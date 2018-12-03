@@ -17,29 +17,28 @@ import net.maidsafe.sample.R;
 public class AuthFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
+    private static final String NON_MOCK = "nonMock";
 
     public AuthFragment() {
+        // Required empty public constructor
+        super();
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull final LayoutInflater inflater, final ViewGroup container,
+                             final Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_auth, container, false);
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    public void onActivityCreated(@Nullable final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         final Button button = getActivity().findViewById(R.id.authButton);
         final TextView welcomeMessage = getActivity().findViewById(R.id.auth_welcome_message);
-        if(BuildConfig.FLAVOR.equals("nonMock")) {
-            welcomeMessage.setText(String.format(getString(R.string.welcome_msg), getString(R.string.welcome_msg_live)));
+        if (NON_MOCK.equals(BuildConfig.FLAVOR)) {
+            welcomeMessage.setText(String.format(getString(R.string.welcome_msg),
+                    getString(R.string.welcome_msg_live)));
             button.setText(getString(R.string.auth_button));
         } else {
             welcomeMessage.setText(String.format(getString(R.string.welcome_msg), getString(R.string.welcome_msg_dev)));
@@ -47,19 +46,19 @@ public class AuthFragment extends Fragment {
         button.setOnClickListener(this::authAction);
     }
 
-    public void authAction(View v) {
+    public void authAction(final View v) {
         if (mListener != null) {
             mListener.onFragmentInteraction(v, null);
         }
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(final Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
-            throw new RuntimeException(context.toString()
+            throw new java.lang.RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
     }

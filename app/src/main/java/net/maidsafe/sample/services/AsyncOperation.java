@@ -6,9 +6,10 @@ public class AsyncOperation<T> extends AsyncTask<IRequest, Void, IResult<T>> {
 
     private ISuccessHandler<T> successHandler;
     private IFailureHandler failureHandler;
-    private IProgressHandler progressHandler;
+    private final IProgressHandler progressHandler;
 
-    public AsyncOperation(IProgressHandler handler) {
+    public AsyncOperation(final IProgressHandler handler) {
+        super();
         this.progressHandler = handler;
     }
 
@@ -18,7 +19,7 @@ public class AsyncOperation<T> extends AsyncTask<IRequest, Void, IResult<T>> {
     }
 
     @Override
-    protected void onPostExecute(IResult<T> result) {
+    protected void onPostExecute(final IResult<T> result) {
         if (result.isError() && this.failureHandler != null) {
             this.failureHandler.onFailure(result.getError());
         } else {
@@ -27,24 +28,24 @@ public class AsyncOperation<T> extends AsyncTask<IRequest, Void, IResult<T>> {
         this.progressHandler.updateStatus(0);
     }
 
-    public AsyncOperation<T> onResult(ISuccessHandler successHandler) {
-        this.successHandler = successHandler;
+    public AsyncOperation<T> onResult(final ISuccessHandler iSuccessHandler) {
+        this.successHandler = iSuccessHandler;
         return this;
     }
 
 
-    public AsyncOperation<T> onException(IFailureHandler failureHandler) {
-        this.failureHandler = failureHandler;
+    public AsyncOperation<T> onException(final IFailureHandler iFailureHandler) {
+        this.failureHandler = iFailureHandler;
         return this;
     }
 
-    public AsyncOperation<T> execute(IRequest<T>... args) {
+    public AsyncOperation<T> execute(final IRequest<T>... args) {
         super.execute(args);
         return this;
     }
 
     @Override
-    public IResult doInBackground(IRequest... iRequests) {
+    public IResult doInBackground(final IRequest... iRequests) {
         return iRequests[0].execute();
     }
 }
