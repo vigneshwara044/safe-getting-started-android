@@ -8,7 +8,6 @@
     <string name="task_placeholder">Some task!</string>
     <string name="disconnected_message">Disconnected from the network</string>
     <string name="reconnect">Reconnect</string>
-    <string name="init_error">Error initializing SAFE services</string>
     <string name="simulate_disconnect">Simulate disconnect</string>
 
     <string name="delete_button">Delete</string>
@@ -31,4 +30,6 @@
     <string name="nothing_here_yet">Nothing here yet!</string>
     <string name="connection_lost">Network connection lost</string>
     <string name="close">CLOSE</string>
+    <string name="info">INFO</string>
+    <string name="no_action">No matching action</string>
 </resources>

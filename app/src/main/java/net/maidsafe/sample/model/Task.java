@@ -2,6 +2,7 @@ package net.maidsafe.sample.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -18,10 +19,10 @@ public class Task implements Serializable, Parcelable {
 
     private String description;
     private Boolean isComplete;
-    private Date date;
+    private final Date date;
     private long version;
 
-    public Task(String description, Date date) {
+    public Task(final String description, final Date date) {
         this.date = date;
         this.description = description;
         this.isComplete = false;
@@ -35,21 +36,21 @@ public class Task implements Serializable, Parcelable {
             oos.writeObject(this);
             stream = baos.toByteArray();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("ERROR:", e.getMessage());
         }
         return stream;
     }
 
-    public static Task toTask(byte[] stream) {
+    public static Task toTask(final byte[] stream) {
         Task task = null;
 
         try (ByteArrayInputStream bais = new ByteArrayInputStream(stream);
              ObjectInputStream ois = new ObjectInputStream(bais)) {
             task = (Task) ois.readObject();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("ERROR:", e.getMessage());
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            Log.e("ERROR:", e.getMessage());
         }
         return task;
     }
@@ -58,7 +59,7 @@ public class Task implements Serializable, Parcelable {
         return version;
     }
 
-    public void setVersion(long version) {
+    public void setVersion(final long version) {
         this.version = version;
     }
 
@@ -66,7 +67,7 @@ public class Task implements Serializable, Parcelable {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
@@ -74,7 +75,7 @@ public class Task implements Serializable, Parcelable {
         return isComplete;
     }
 
-    public void setComplete(Boolean complete) {
+    public void setComplete(final Boolean complete) {
         isComplete = complete;
     }
 
@@ -88,7 +89,7 @@ public class Task implements Serializable, Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel parcel, int i) {
+    public void writeToParcel(final Parcel parcel, final int i) {
         parcel.writeString(description);
         parcel.writeValue(isComplete);
         parcel.writeValue(date);
@@ -96,18 +97,18 @@ public class Task implements Serializable, Parcelable {
     }
 
     public static final Parcelable.Creator<Task> CREATOR = new Parcelable.Creator<Task>() {
-        public Task createFromParcel(Parcel parcel) {
+        public Task createFromParcel(final Parcel parcel) {
             return new Task(parcel);
         }
-        public Task[] newArray(int size) {
+        public Task[] newArray(final int size) {
             return new Task[size];
         }
     };
 
-    public Task(Parcel parcel){
+    public Task(final Parcel parcel) {
         description = parcel.readString();
         isComplete = (Boolean) parcel.readValue(Boolean.class.getClassLoader());
-        date = (Date)parcel.readValue(Date.class.getClassLoader());
+        date = (Date) parcel.readValue(Date.class.getClassLoader());
         version = parcel.readLong();
     }
 

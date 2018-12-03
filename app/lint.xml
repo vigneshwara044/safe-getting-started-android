@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- list of issues to configure -->
+    <issue id="OldTargetApi" severity="ignore" />
+    <issue id="UnusedAttribute" severity="ignore" />
+    <issue id="RtlSymmetry" severity="ignore" />
+</lint>

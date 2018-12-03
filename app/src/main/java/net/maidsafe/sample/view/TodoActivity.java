@@ -40,21 +40,40 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
         ListFragment.OnFragmentInteractionListener, TodoItemDetailsFragment.OnFragmentInteractionListener,
         ListHomeFragment.OnFragmentInteractionListener {
 
+    private static final String MOCK = "mock";
     SectionViewModel sectionViewModel;
     ListViewModel listViewModel;
     ProgressBar progressBar;
     boolean connected;
     View host;
     OnDisconnected onDisconnected;
+    public enum Status {
+        LOADING(1),
+        DONE(0),
+        SECTION_ERROR(-1),
+        LIST_ERROR(-2);
+        private int val;
+
+        Status(final int val) {
+            this.val = val;
+        }
+
+        public int getValue() {
+            return this.val;
+        }
+    }
+    private static final int MOCK_DISCONNECT_ID = 3421;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
         onDisconnected = () -> {
-            Handler handler = new Handler(Looper.getMainLooper());
+            connected = false;
+            final Handler handler = new Handler(Looper.getMainLooper());
             handler.post(() -> {
-                Snackbar.make(findViewById(android.R.id.content), getString(R.string.disconnected_message), Snackbar.LENGTH_INDEFINITE)
+                Snackbar.make(findViewById(android.R.id.content), getString(R.string.disconnected_message),
+                        Snackbar.LENGTH_INDEFINITE)
                         .setAction(getString(R.string.reconnect), view -> {
                             sectionViewModel.reconnect();
                         })
@@ -67,13 +86,13 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
         host = findViewById(R.id.my_nav_host_fragment);
 
         final Observer<Integer> statusObserver = status -> {
-            if (status == 1) {
+            if (status == Status.LOADING.getValue()) {
                 progressBar.setVisibility(View.VISIBLE);
-            } else if(status == 0){
+            } else if (status == Status.DONE.getValue()) {
                 progressBar.setVisibility(View.INVISIBLE);
-            } else if(status == -1) {
+            } else if (status == Status.SECTION_ERROR.getValue()) {
                 showErrorPopUp(sectionViewModel.getErrorMessage());
-            } else if(status == -2) {
+            } else if (status == Status.LIST_ERROR.getValue()) {
                 showErrorPopUp(listViewModel.getErrorMessage());
             }
         };
@@ -86,22 +105,22 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
         sectionViewModel.getStatus().observe(this, statusObserver);
         sectionViewModel.getConnected().observe(this, clientObserver);
 
-        Intent intent = getIntent();
-        Uri data = intent.getData();
+        final Intent intent = getIntent();
+        final Uri data = intent.getData();
         if (data != null) {
             sectionViewModel.connect(data, onDisconnected);
             Navigation.findNavController(host).navigate(R.id.listHomeFragment);
         }
     }
 
-    private void showErrorPopUp(String errorMessage) {
+    private void showErrorPopUp(final String errorMessage) {
         final AlertDialog dialogBuilder = new AlertDialog.Builder(this).create();
-        View dialogView = View.inflate(this, R.layout.error_layout, null);
+        final View dialogView = View.inflate(this, R.layout.error_layout, null);
         dialogBuilder.setView(dialogView);
 
-        TextView errorLog = dialogView.findViewById(R.id.errorLog);
+        final TextView errorLog = dialogView.findViewById(R.id.errorLog);
         errorLog.setText(errorMessage);
-        Button close = dialogView.findViewById(R.id.closeErrorLog);
+        final Button close = dialogView.findViewById(R.id.closeErrorLog);
         close.setOnClickListener(v -> {
             dialogBuilder.hide();
         });
@@ -109,68 +128,70 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
         dialogBuilder.show();
     }
 
-    public void onFragmentInteraction(View v, Object object) {
-        if(!connected && v.getId() != R.id.authButton) {
-            Toast.makeText(getApplicationContext(), getString(R.string.connection_lost), Toast.LENGTH_LONG).show();
+    public void onFragmentInteraction(final View v, final Object object) {
+        if (!connected && v.getId() != R.id.authButton) {
+            Toast.makeText(getApplicationContext(), getString(R.string.connection_lost), Toast.LENGTH_SHORT).show();
             return;
         }
-        Log.d(v.getId() + "", "");
         switch (v.getId()) {
             case R.id.authButton:
                 sectionViewModel.authenticateApplication(getApplicationContext(), onDisconnected);
-                if(BuildConfig.FLAVOR.equals("mock")) {
+                if (BuildConfig.FLAVOR.equals(MOCK)) {
                     Navigation.findNavController(v).navigate(R.id.listHomeFragment);
                 }
                 break;
             case R.id.new_section_add_section:
-                String sectionTitle = (String) object;
+                final String sectionTitle = (String) object;
                 sectionViewModel.addSection(sectionTitle);
                 break;
             case R.id.taskDeleteButton:
                 listViewModel.deleteTask((Task) object);
                 break;
-            case R.id.addNewTask:
-                String taskDesc = (String) object;
+            case R.id.new_task_add_task:
+                final String taskDesc = (String) object;
                 listViewModel.addTask(taskDesc);
                 break;
             case R.id.taskCheckbox:
                 listViewModel.updateTask((Task) object);
                 break;
             case R.id.todoListItem:
-                Bundle task = new Bundle();
+                final Bundle task = new Bundle();
                 task.putParcelable("task", (Task) object);
                 Navigation.findNavController(v).navigate(R.id.todoItemDetailsFragment, task);
                 break;
             case R.id.list_home_card_layout:
-                Bundle listDetails = new Bundle();
+                final Bundle listDetails = new Bundle();
                 listDetails.putParcelable("listInfo", (TodoList) object);
                 Navigation.findNavController(v).navigate(R.id.listFragment, listDetails);
                 break;
             case R.id.addSectionButton:
-                showAddSectionDialog();
+                showPopUp(R.layout.new_section_dialog);
                 break;
             case R.id.addTaskButton:
-                showAddTaskDialog();
+                showPopUp(R.layout.new_task_dialog);
+                break;
+            default:
+                Log.i(getString(R.string.info), getString(R.string.no_action));
                 break;
         }
     }
 
     @Override
-    public void setActionBarTitle(String title) {
+    public void setActionBarTitle(final String title) {
         getSupportActionBar().setTitle(title);
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        if(BuildConfig.FLAVOR.equals("mock")) {
-            menu.add(Menu.NONE, 3241, Menu.NONE, getString(R.string.simulate_disconnect));
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        if (BuildConfig.FLAVOR.equals(MOCK)) {
+            menu.add(Menu.NONE, MOCK_DISCONNECT_ID, Menu.NONE, getString(R.string.simulate_disconnect));
         }
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        if(BuildConfig.FLAVOR.equals("mock")) {
+    public boolean onPrepareOptionsMenu(final Menu menu) {
+        if (BuildConfig.FLAVOR.equals(MOCK)) {
             if (!connected) {
                 menu.getItem(0).setEnabled(false);
             } else {
@@ -181,11 +202,9 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == 3241) {
-            if(connected) {
-                sectionViewModel.disconnect();
-            }
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        if (item.getItemId() == MOCK_DISCONNECT_ID && connected) {
+            sectionViewModel.disconnect();
         }
         invalidateOptionsMenu();
         return super.onOptionsItemSelected(item);
@@ -202,93 +221,141 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
         super.onBackPressed();
     }
 
-    public void setActionBarText(String text) {
+    public void setActionBarText(final String text) {
         getActionBar().setTitle(text);
     }
 
-    public void showActionBarBack(boolean displayed) {
+    public void showActionBarBack(final boolean displayed) {
         getSupportActionBar().setDisplayShowHomeEnabled(displayed);
     }
 
-    public void showAddSectionDialog() {
+    public void showPopUp(final int id) {
         final AlertDialog dialogBuilder = new AlertDialog.Builder(this).create();
-        View dialogView = View.inflate(this, R.layout.new_section_dialog, null);
+        final View dialogView = View.inflate(this, id, null);
 
-        final EditText newSectionText = dialogView.findViewById(R.id.new_section_edit_text);
-        newSectionText.setOnFocusChangeListener((v, hasFocus) -> newSectionText.post(() -> {
-            InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(newSectionText, InputMethodManager.SHOW_IMPLICIT);
+        EditText editText;
+        Button addButton;
+        Button cancelButton;
+
+        if (id == R.layout.new_section_dialog) {
+            editText = dialogView.findViewById(R.id.new_section_edit_text);
+            addButton = dialogView.findViewById(R.id.new_section_add_section);
+            cancelButton = dialogView.findViewById(R.id.new_section_cancel);
+        } else {
+            editText = dialogView.findViewById(R.id.new_task_edit_text);
+            addButton = dialogView.findViewById(R.id.new_task_add_task);
+            cancelButton = dialogView.findViewById(R.id.new_task_cancel);
+        }
+        editText.setOnFocusChangeListener((v, hasFocus) -> editText.post(() -> {
+            final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
         }));
-        newSectionText.requestFocus();
-        Button addNewSection = dialogView.findViewById(R.id.new_section_add_section);
-        Button cancelAddSection = dialogView.findViewById(R.id.new_section_cancel);
-        newSectionText.addTextChangedListener(new TextWatcher() {
+        editText.requestFocus();
+        editText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+            public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
+                // no action
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                addNewSection.setEnabled(!TextUtils.isEmpty(s.toString().trim()));
+            public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
+                addButton.setEnabled(!TextUtils.isEmpty(s.toString().trim()));
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
-
+            public void afterTextChanged(final Editable s) {
+                // no action
             }
         });
-
-        cancelAddSection.setOnClickListener(view -> dialogBuilder.dismiss());
-        addNewSection.setOnClickListener(view -> {
-            String taskText = newSectionText.getText().toString();
+        cancelButton.setOnClickListener(view -> dialogBuilder.dismiss());
+        addButton.setOnClickListener(view -> {
+            final String taskText = editText.getText().toString();
             onFragmentInteraction(view, taskText);
             dialogBuilder.dismiss();
         });
-
         dialogBuilder.setView(dialogView);
         dialogBuilder.show();
     }
 
-    public void showAddTaskDialog() {
-        final AlertDialog dialogBuilder = new AlertDialog.Builder(this).create();
-        View dialogView = View.inflate(this, R.layout.new_task_dialog, null);
+//    public void showAddSectionDialog() {
+//        final AlertDialog dialogBuilder = new AlertDialog.Builder(this).create();
+//        final View dialogView = View.inflate(this, R.layout.new_section_dialog, null);
+//
+//        final EditText newSectionText = dialogView.findViewById(R.id.new_section_edit_text);
+//        newSectionText.setOnFocusChangeListener((v, hasFocus) -> newSectionText.post(() -> {
+//            final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+//            imm.showSoftInput(newSectionText, InputMethodManager.SHOW_IMPLICIT);
+//        }));
+//        newSectionText.requestFocus();
+//        final Button addNewSection = dialogView.findViewById(R.id.new_section_add_section);
+//        final Button cancelAddSection = dialogView.findViewById(R.id.new_section_cancel);
+//        newSectionText.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
+//                // no action
+//            }
+//
+//            @Override
+//            public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
+//                addNewSection.setEnabled(!TextUtils.isEmpty(s.toString().trim()));
+//            }
+//
+//            @Override
+//            public void afterTextChanged(final Editable s) {
+//                // no action
+//            }
+//        });
+//
+//        cancelAddSection.setOnClickListener(view -> dialogBuilder.dismiss());
+//        addNewSection.setOnClickListener(view -> {
+//            final String taskText = newSectionText.getText().toString();
+//            onFragmentInteraction(view, taskText);
+//            dialogBuilder.dismiss();
+//        });
+//
+//        dialogBuilder.setView(dialogView);
+//        dialogBuilder.show();
+//    }
 
-        final EditText newTaskText = dialogView.findViewById(R.id.newTaskText);
-        newTaskText.setOnFocusChangeListener((v, hasFocus) -> newTaskText.post(() -> {
-            InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(newTaskText, InputMethodManager.SHOW_IMPLICIT);
-        }));
-        newTaskText.requestFocus();
-        Button addNewTask = dialogView.findViewById(R.id.addNewTask);
-        Button cancelAddTask = dialogView.findViewById(R.id.cancelAddTask);
-
-        newTaskText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                addNewTask.setEnabled(!TextUtils.isEmpty(s.toString().trim()));
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-        cancelAddTask.setOnClickListener(view -> dialogBuilder.dismiss());
-        addNewTask.setOnClickListener(view -> {
-            String taskText = newTaskText.getText().toString();
-            onFragmentInteraction(view, taskText);
-            dialogBuilder.dismiss();
-        });
-
-        dialogBuilder.setView(dialogView);
-        dialogBuilder.show();
-    }
+//    public void showAddTaskDialog() {
+//        final AlertDialog dialogBuilder = new AlertDialog.Builder(this).create();
+//        final View dialogView = View.inflate(this, R.layout.new_task_dialog, null);
+//
+//        final EditText newTaskText = dialogView.findViewById(R.id.newTaskText);
+//        newTaskText.setOnFocusChangeListener((v, hasFocus) -> newTaskText.post(() -> {
+//            final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+//            imm.showSoftInput(newTaskText, InputMethodManager.SHOW_IMPLICIT);
+//        }));
+//        newTaskText.requestFocus();
+//        final Button addNewTask = dialogView.findViewById(R.id.addNewTask);
+//        final Button cancelAddTask = dialogView.findViewById(R.id.cancelAddTask);
+//
+//        newTaskText.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
+//                // no action
+//            }
+//
+//            @Override
+//            public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
+//                addNewTask.setEnabled(!TextUtils.isEmpty(s.toString().trim()));
+//            }
+//
+//            @Override
+//            public void afterTextChanged(final Editable s) {
+//                // no action
+//            }
+//        });
+//        cancelAddTask.setOnClickListener(view -> dialogBuilder.dismiss());
+//        addNewTask.setOnClickListener(view -> {
+//            String taskText = newTaskText.getText().toString();
+//            onFragmentInteraction(view, taskText);
+//            dialogBuilder.dismiss();
+//        });
+//
+//        dialogBuilder.setView(dialogView);
+//        dialogBuilder.show();
+//    }
 
 
 }

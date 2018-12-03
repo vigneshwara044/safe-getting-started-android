@@ -17,6 +17,7 @@ import net.maidsafe.sample.services.SafeTodoService;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,14 +25,15 @@ import java.util.List;
 
 public class SectionViewModel extends AndroidViewModel implements IFailureHandler, IProgressHandler {
 
-    private MutableLiveData<List<TodoList>> liveSectionsList;
-    private MutableLiveData<Integer> status;
-    private MutableLiveData<Boolean> connected;
+    private static final String MOCK = "mock";
+    private final MutableLiveData<List<TodoList>> liveSectionsList;
+    private final MutableLiveData<Integer> status;
+    private final MutableLiveData<Boolean> connected;
     private List<TodoList> sectionsList;
-    private ITodoService todoService;
+    private final ITodoService todoService;
     private String errorMessage;
 
-    public SectionViewModel(Application application) {
+    public SectionViewModel(final Application application) {
         super(application);
         sectionsList = new ArrayList<>();
         status = new MutableLiveData<>();
@@ -44,9 +46,9 @@ public class SectionViewModel extends AndroidViewModel implements IFailureHandle
     }
 
     @Override
-    public void onFailure(Exception e) {
+    public void onFailure(final Exception e) {
         errorMessage = e.getMessage();
-        e.printStackTrace();
+        Log.e("ERROR:", errorMessage);
         status.setValue(-1);
     }
 
@@ -67,40 +69,40 @@ public class SectionViewModel extends AndroidViewModel implements IFailureHandle
         return liveSectionsList;
     }
 
-    public void authenticateApplication(Context context, OnDisconnected disconnected) {
+    public void authenticateApplication(final Context context, final OnDisconnected disconnected) {
         new AsyncOperation(this).execute(() -> {
             try {
-                String uri = todoService.generateAuthURL();
+                final String uri = todoService.generateAuthURL();
                 return new Result(uri);
             } catch (Exception e) {
                 return new Result(e);
             }
         }).onResult(result -> {
-            if(BuildConfig.FLAVOR.equals("mock")) {
+            if (BuildConfig.FLAVOR.equals(MOCK)) {
                 mockAuthentication((String) result, disconnected);
             } else {
-                context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse((String)result)));
+                context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse((String) result)));
             }
         });
     }
 
-    public void addSection(String sectionTitle) {
+    public void addSection(final String sectionTitle) {
         new AsyncOperation(this).execute(() -> {
             try {
-                TodoList sectionList = todoService.addSection(sectionTitle);
+                final TodoList sectionList = todoService.addSection(sectionTitle);
                 return new Result(sectionList);
             } catch (Exception e) {
                 return new Result(e);
             }
         }).onResult(result -> {
-            sectionsList.add((TodoList)result);
+            sectionsList.add((TodoList) result);
             liveSectionsList.setValue(sectionsList);
         }).onException(this);
 
     }
 
 
-    public void connect(Uri data, OnDisconnected disconnected) {
+    public void connect(final Uri data, final OnDisconnected disconnected) {
         new AsyncOperation(this).execute(() -> {
             try {
                 todoService.connect(data, disconnected);
@@ -130,7 +132,7 @@ public class SectionViewModel extends AndroidViewModel implements IFailureHandle
     private void fetchSections() {
         new AsyncOperation(this).execute(() -> {
             try {
-                List<TodoList> list = todoService.fetchSections();
+                final List<TodoList> list = todoService.fetchSections();
                 return new Result<List>(list);
             } catch (Exception e) {
                 return new Result(e);
@@ -143,22 +145,22 @@ public class SectionViewModel extends AndroidViewModel implements IFailureHandle
         });
     }
 
-    public void mockAuthentication(final String uri, OnDisconnected disconnected) {
+    public void mockAuthentication(final String uri, final OnDisconnected disconnected) {
         new AsyncOperation<Uri>(this).execute(() -> {
             try {
-                Uri response = MockServices.mockAuthenticate(uri);
+                final Uri response = MockServices.mockAuthenticate(uri);
                 return new Result(response);
             } catch (Exception e) {
                 return new Result(e);
             }
         }).onResult(result -> {
-            connect((Uri)result, disconnected);
+            connect((Uri) result, disconnected);
         }).onException(this);
     }
 
     @Override
-    public void updateStatus(int status) {
-        this.status.setValue(status);
+    public void updateStatus(final int s) {
+        this.status.setValue(s);
     }
 
     public void reconnect() {

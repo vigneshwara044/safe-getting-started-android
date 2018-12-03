@@ -1,6 +1,5 @@
 package net.maidsafe.sample.services;
 
-import android.content.Context;
 import android.net.Uri;
 
 import net.maidsafe.sample.model.Task;

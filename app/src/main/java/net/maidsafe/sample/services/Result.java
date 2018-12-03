@@ -5,11 +5,11 @@ public class Result<T> implements IResult<T> {
     private T result;
     private Exception e;
 
-    public Result(T result) {
+    public Result(final T result) {
         this.result = result;
     }
 
-    public Result(Exception e) {
+    public Result(final Exception e) {
         this.e = e;
     }
 

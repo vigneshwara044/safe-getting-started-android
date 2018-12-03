@@ -11,45 +11,48 @@ import net.maidsafe.sample.services.AsyncOperation;
 import net.maidsafe.sample.services.Result;
 import net.maidsafe.sample.services.SafeApi;
 
-public class MockServices {
+public final class MockServices {
 
     private static final String LOCATOR = "locator";
     private static final String PASSWORD = "password";
     private static final String INVITE = "invite";
     private static final String ACCOUNT_EXISTS_CODE = "-102";
 
-    public static Uri mockAuthenticate(String uri) throws Exception {
+    private MockServices() {
+
+    }
+
+    public static Uri mockAuthenticate(final String uri) throws Exception {
         Authenticator authenticator = null;
         try {
             authenticator = Authenticator.createAccount(LOCATOR, PASSWORD, INVITE).get();
-            Log.d("STAGE:","Account created");
+            Log.d("STAGE:", "Account created");
         } catch (Exception e) {
             if (e.getMessage().contains(ACCOUNT_EXISTS_CODE)) {
                 authenticator = Authenticator.login(LOCATOR, PASSWORD).get();
-                Log.d("STAGE:","Logged in to existing account");
+                Log.d("STAGE:", "Logged in to existing account");
             } else {
-                e.printStackTrace();
+                Log.e("ERROR:", e.getMessage());
             }
         }
 
         if (authenticator == null) {
-            throw new Exception("Not logged in!" + "\nMOCK VAULT PATH: " + Os.getenv("SAFE_MOCK_VAULT_PATH"));
+            throw new java.lang.Exception("Not logged in!" + "\nMOCK VAULT PATH: " + Os.getenv("SAFE_MOCK_VAULT_PATH"));
         }
-        String data = uri.replaceAll(".*\\/+", "");
-        IpcRequest request = authenticator.decodeIpcMessage(data).get();
-        AuthIpcRequest authIpcRequest = (AuthIpcRequest) request;
-        String response = authenticator.encodeAuthResponse(authIpcRequest, true).get();
-        String appId = authIpcRequest.getAuthReq().getApp().getId();
-
+        final String data = uri.replaceAll(".*\\/+", "");
+        final IpcRequest request = authenticator.decodeIpcMessage(data).get();
+        final AuthIpcRequest authIpcRequest = (AuthIpcRequest) request;
+        final String response = authenticator.encodeAuthResponse(authIpcRequest, true).get();
+        final String appId = authIpcRequest.getAuthReq().getApp().getId();
         return Uri.parse(appId + "://" + response);
     }
 
-    public static void simulateDisconnect(){
+    public static void simulateDisconnect() {
         new AsyncOperation(loading -> {
 
         }).execute(() -> {
             try {
-                SafeApi api = SafeApi.getInstance(null);
+                final SafeApi api = SafeApi.getInstance(null);
                 api.disconnect();
                 return new Result(null);
             } catch (Exception e) {
@@ -58,7 +61,7 @@ public class MockServices {
         }).onResult(result -> {
 
         }).onException(e -> {
-           e.printStackTrace();
+           Log.d("ERROR", e.getMessage());
         });
     }
 }
