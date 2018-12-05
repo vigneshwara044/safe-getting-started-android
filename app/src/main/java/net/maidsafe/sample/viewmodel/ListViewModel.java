@@ -24,7 +24,6 @@ public class ListViewModel extends AndroidViewModel implements IFailureHandler, 
     private final MutableLiveData<Integer> status;
     private List<Task> taskList;
     private TodoList listInfo;
-//    private MDataInfo mdInfo;
     private final MutableLiveData<List<Task>> liveTaskList;
     private final ITodoService todoService;
     private String errorMessage;
@@ -107,7 +106,6 @@ public class ListViewModel extends AndroidViewModel implements IFailureHandler, 
 
     public void prepareList() {
         try {
-//            mdInfo = SafeApi.getInstance(null).deserializeMdInfo(listInfo.getContent());
             fetchListItems();
         } catch (Exception e) {
             Log.e("INFO:", "Unable to fetch data");
