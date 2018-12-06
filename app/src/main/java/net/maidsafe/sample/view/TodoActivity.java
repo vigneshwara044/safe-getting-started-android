@@ -48,10 +48,12 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
     View host;
     OnDisconnected onDisconnected;
     public enum Status {
+
         LOADING(1),
         DONE(0),
-        SECTION_ERROR(-1),
-        LIST_ERROR(-2);
+        CONNECTED(2),
+        ERROR(-1);
+
         private int val;
 
         Status(final int val) {
@@ -90,18 +92,16 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
                 progressBar.setVisibility(View.VISIBLE);
             } else if (status == Status.DONE.getValue()) {
                 progressBar.setVisibility(View.INVISIBLE);
-            } else if (status == Status.SECTION_ERROR.getValue()) {
+            } else if (status == Status.ERROR.getValue()) {
                 showErrorPopUp(sectionViewModel.getErrorMessage());
-            } else if (status == Status.LIST_ERROR.getValue()) {
-                showErrorPopUp(listViewModel.getErrorMessage());
+            } else if (status == Status.CONNECTED.getValue()) {
+                sectionViewModel.fetchSections();
             }
         };
         final Observer<Boolean> clientObserver = isConnected -> {
             connected = isConnected;
         };
 
-
-        listViewModel.getStatus().observe(this, statusObserver);
         sectionViewModel.getStatus().observe(this, statusObserver);
         sectionViewModel.getConnected().observe(this, clientObserver);
 
