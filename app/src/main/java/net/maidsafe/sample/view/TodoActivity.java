@@ -109,7 +109,7 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
         final Uri data = intent.getData();
         if (data != null) {
             sectionViewModel.connect(data, onDisconnected);
-            Navigation.findNavController(host).navigate(R.id.listHomeFragment);
+            Navigation.findNavController(host).navigate(R.id.action_authFragment_to_listHomeFragment);
         }
     }
 
