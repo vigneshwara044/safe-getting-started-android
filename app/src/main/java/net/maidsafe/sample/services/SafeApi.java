@@ -98,7 +98,7 @@ public final class SafeApi {
         session.mDataPermission.insert(permissionHandle, session.crypto.getAppPublicSignKey().get(),
                 permissionSet).get();
 
-        session.mData.put(mDataInfo, permissionHandle, Constants.USER_ANYONE).get();
+        session.mData.put(mDataInfo, permissionHandle, Constants.MD_ENTRIES_EMPTY).get();
         Log.i("STAGE:", "MData PUT is complete");
     }
 

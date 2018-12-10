@@ -69,6 +69,10 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
+            finish();
+            return;
+        }
         setContentView(R.layout.activity_auth);
         onDisconnected = () -> {
             connected = false;
@@ -137,7 +141,9 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
             case R.id.authButton:
                 sectionViewModel.authenticateApplication(getApplicationContext(), onDisconnected);
                 if (BuildConfig.FLAVOR.equals(MOCK)) {
-                    Navigation.findNavController(v).navigate(R.id.listHomeFragment);
+                    Navigation.findNavController(v).navigate(R.id.action_authFragment_to_listHomeFragment);
+                } else {
+                    finish();
                 }
                 break;
             case R.id.new_section_add_section:
@@ -212,7 +218,8 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
 
     @Override
     public boolean onSupportNavigateUp() {
-        return Navigation.findNavController(this, R.id.my_nav_host_fragment).navigateUp();
+        onBackPressed();
+        return true;
     }
 
     @Override
@@ -227,6 +234,7 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
 
     public void showActionBarBack(final boolean displayed) {
         getSupportActionBar().setDisplayShowHomeEnabled(displayed);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(displayed);
     }
 
     public void showPopUp(final int id) {
