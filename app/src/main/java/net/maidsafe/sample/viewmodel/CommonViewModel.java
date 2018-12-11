@@ -13,6 +13,7 @@ import net.maidsafe.sample.services.ITodoService;
 import net.maidsafe.sample.services.OnDisconnected;
 import net.maidsafe.sample.services.Result;
 import net.maidsafe.sample.services.SafeTodoService;
+import net.maidsafe.sample.services.AsyncOperation.Status;
 
 public class CommonViewModel extends AndroidViewModel implements IFailureHandler, IProgressHandler {
 
@@ -24,7 +25,7 @@ public class CommonViewModel extends AndroidViewModel implements IFailureHandler
 
     public CommonViewModel(final Application application) {
         super(application);
-        STATUS.setValue(0);
+        STATUS.setValue(Status.DONE.getValue());
         todoService = new SafeTodoService(application.getApplicationContext());
     }
 
@@ -32,7 +33,7 @@ public class CommonViewModel extends AndroidViewModel implements IFailureHandler
         new AsyncOperation(this).execute(() -> {
             try {
                 todoService.reconnect();
-                return new Result(null);
+                return new Result();
             } catch (Exception e) {
                 return new Result(e);
             }
@@ -50,12 +51,12 @@ public class CommonViewModel extends AndroidViewModel implements IFailureHandler
         new AsyncOperation(this).execute(() -> {
             try {
                 todoService.getAppData();
-                return new Result(null);
+                return new Result();
             } catch (Exception e) {
                 return new Result(e);
             }
         }).onResult(result -> {
-            STATUS.setValue(2);
+            STATUS.setValue(Status.CONNECTED.getValue());
         }).onException(this);
     }
 
@@ -63,7 +64,7 @@ public class CommonViewModel extends AndroidViewModel implements IFailureHandler
         new AsyncOperation(this).execute(() -> {
             try {
                 todoService.connect(data, disconnected);
-                return new Result(null);
+                return new Result();
             } catch (Exception e) {
                 return new Result(e);
             }
@@ -100,7 +101,7 @@ public class CommonViewModel extends AndroidViewModel implements IFailureHandler
     public void onFailure(final Exception e) {
         errorMessage = e.getMessage();
         Log.e("INFO:", errorMessage);
-        STATUS.setValue(-1);
+        STATUS.setValue(Status.ERROR.getValue());
     }
 
     @Override

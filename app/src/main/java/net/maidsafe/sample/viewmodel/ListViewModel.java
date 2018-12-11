@@ -39,7 +39,7 @@ public class ListViewModel extends CommonViewModel {
         new AsyncOperation(this).execute(() -> {
             try {
                 todoService.addTask(task, listInfo);
-                return new Result(null);
+                return new Result();
             } catch (Exception e) {
                 return new Result(e);
             }
@@ -53,7 +53,7 @@ public class ListViewModel extends CommonViewModel {
         new AsyncOperation(this).execute(() -> {
             try {
                 todoService.deleteTask(task, listInfo);
-                return new Result(null);
+                return new Result();
             } catch (Exception e) {
                 return new Result(e);
             }
@@ -67,7 +67,7 @@ public class ListViewModel extends CommonViewModel {
         new AsyncOperation(this).execute(() -> {
             try {
                 todoService.updateTaskStatus(task, listInfo);
-                return new Result(null);
+                return new Result();
             } catch (Exception e) {
                 return new Result(e);
             }

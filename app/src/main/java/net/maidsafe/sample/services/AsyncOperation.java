@@ -8,6 +8,24 @@ public class AsyncOperation<T> extends AsyncTask<IRequest, Void, IResult<T>> {
     private IFailureHandler failureHandler;
     private final IProgressHandler progressHandler;
 
+    public enum Status {
+
+        LOADING(1),
+        DONE(0),
+        CONNECTED(2),
+        ERROR(-1);
+
+        private int val;
+
+        Status(final int val) {
+            this.val = val;
+        }
+
+        public int getValue() {
+            return this.val;
+        }
+    }
+
     public AsyncOperation(final IProgressHandler handler) {
         super();
         this.progressHandler = handler;
@@ -15,7 +33,7 @@ public class AsyncOperation<T> extends AsyncTask<IRequest, Void, IResult<T>> {
 
     @Override
     protected void onPreExecute() {
-        this.progressHandler.updateStatus(1);
+        this.progressHandler.updateStatus(Status.LOADING.getValue());
     }
 
     @Override
@@ -25,7 +43,7 @@ public class AsyncOperation<T> extends AsyncTask<IRequest, Void, IResult<T>> {
         } else {
             this.successHandler.onSuccess(result.getResult());
         }
-        this.progressHandler.updateStatus(0);
+        this.progressHandler.updateStatus(Status.DONE.getValue());
     }
 
     public AsyncOperation<T> onResult(final ISuccessHandler iSuccessHandler) {

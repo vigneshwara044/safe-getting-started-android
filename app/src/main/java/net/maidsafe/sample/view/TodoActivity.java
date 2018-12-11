@@ -32,6 +32,7 @@ import net.maidsafe.sample.services.OnDisconnected;
 import net.maidsafe.sample.viewmodel.ListViewModel;
 import net.maidsafe.sample.viewmodel.SectionViewModel;
 import net.maidsafe.sample.model.Task;
+import net.maidsafe.sample.services.AsyncOperation.Status;
 
 
 import androidx.navigation.Navigation;
@@ -47,23 +48,6 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
     boolean connected;
     View host;
     OnDisconnected onDisconnected;
-    public enum Status {
-
-        LOADING(1),
-        DONE(0),
-        CONNECTED(2),
-        ERROR(-1);
-
-        private int val;
-
-        Status(final int val) {
-            this.val = val;
-        }
-
-        public int getValue() {
-            return this.val;
-        }
-    }
     private static final int MOCK_DISCONNECT_ID = 3421;
 
     @Override

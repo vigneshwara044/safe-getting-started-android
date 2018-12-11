@@ -54,7 +54,7 @@ public final class MockServices {
             try {
                 final SafeApi api = SafeApi.getInstance(null);
                 api.disconnect();
-                return new Result(null);
+                return new Result();
             } catch (Exception e) {
                 return new Result(e);
             }
