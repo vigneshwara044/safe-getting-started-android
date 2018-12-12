@@ -46,8 +46,15 @@ public class ListFragment extends Fragment {
         viewModel.setListDetails(getArguments().getParcelable("listInfo"));
 
         final Observer<List<Task>> taskObserver = tasks -> taskListAdapter.updateList(tasks);
+        final Observer<Boolean> connectedObserver = connected -> {
+                if (connected) {
+                    viewModel.prepareList();
+                }
+                taskListAdapter.setConnected(connected);
+        };
 
         viewModel.getTaskList().observe(this, taskObserver);
+        viewModel.getConnected().observe(this, connectedObserver);
 
     }
 
@@ -123,7 +130,11 @@ public class ListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        viewModel.prepareList();
+        if (viewModel.getConnected().getValue()) {
+            viewModel.prepareList();
+        } else {
+            onButtonPressed(new View(getContext()), null);
+        }
         mListener.setActionBarTitle(viewModel.getListInfo().getListTitle());
         mListener.showActionBarBack(true);
     }
@@ -137,6 +148,7 @@ public class ListFragment extends Fragment {
     public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
         private List<Task> taskList;
+        private boolean connected = true;
 
         ListAdapter(final List<Task> taskList) {
             super();
@@ -163,7 +175,7 @@ public class ListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
-
+            holder.checkBox.setEnabled(connected);
             holder.checkBox.setChecked(taskList.get(position).getComplete());
             holder.taskDescription.setText(taskList.get(position).getDescription());
 
@@ -180,6 +192,11 @@ public class ListFragment extends Fragment {
             return size;
         }
 
+        public void setConnected(final Boolean isConnected) {
+            this.connected = isConnected;
+            notifyDataSetChanged();
+        }
+
         public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
             private final ItemClickedListener itemClickListener;
@@ -193,8 +210,7 @@ public class ListFragment extends Fragment {
                 view.setOnClickListener(this);
                 this.checkBox = view.findViewById(R.id.taskCheckbox);
                 checkBox.setOnClickListener(v -> {
-                    onButtonPressed(v, taskList.get(getAdapterPosition()));
-                    notifyDataSetChanged();
+                        onButtonPressed(v, taskList.get(getAdapterPosition()));
                 });
                 this.taskDescription = view.findViewById(R.id.taskDescription);
                 this.deleteButton = view.findViewById(R.id.taskDeleteButton);
@@ -208,4 +224,5 @@ public class ListFragment extends Fragment {
         }
 
     }
+
 }

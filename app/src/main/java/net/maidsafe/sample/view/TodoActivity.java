@@ -32,6 +32,7 @@ import net.maidsafe.sample.services.OnDisconnected;
 import net.maidsafe.sample.viewmodel.ListViewModel;
 import net.maidsafe.sample.viewmodel.SectionViewModel;
 import net.maidsafe.sample.model.Task;
+import net.maidsafe.sample.services.AsyncOperation.Status;
 
 
 import androidx.navigation.Navigation;
@@ -47,26 +48,15 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
     boolean connected;
     View host;
     OnDisconnected onDisconnected;
-    public enum Status {
-        LOADING(1),
-        DONE(0),
-        SECTION_ERROR(-1),
-        LIST_ERROR(-2);
-        private int val;
-
-        Status(final int val) {
-            this.val = val;
-        }
-
-        public int getValue() {
-            return this.val;
-        }
-    }
     private static final int MOCK_DISCONNECT_ID = 3421;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
+            finish();
+            return;
+        }
         setContentView(R.layout.activity_auth);
         onDisconnected = () -> {
             connected = false;
@@ -90,18 +80,16 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
                 progressBar.setVisibility(View.VISIBLE);
             } else if (status == Status.DONE.getValue()) {
                 progressBar.setVisibility(View.INVISIBLE);
-            } else if (status == Status.SECTION_ERROR.getValue()) {
+            } else if (status == Status.ERROR.getValue()) {
                 showErrorPopUp(sectionViewModel.getErrorMessage());
-            } else if (status == Status.LIST_ERROR.getValue()) {
-                showErrorPopUp(listViewModel.getErrorMessage());
+            } else if (status == Status.CONNECTED.getValue()) {
+                sectionViewModel.fetchSections();
             }
         };
         final Observer<Boolean> clientObserver = isConnected -> {
             connected = isConnected;
         };
 
-
-        listViewModel.getStatus().observe(this, statusObserver);
         sectionViewModel.getStatus().observe(this, statusObserver);
         sectionViewModel.getConnected().observe(this, clientObserver);
 
@@ -109,7 +97,7 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
         final Uri data = intent.getData();
         if (data != null) {
             sectionViewModel.connect(data, onDisconnected);
-            Navigation.findNavController(host).navigate(R.id.listHomeFragment);
+            Navigation.findNavController(host).navigate(R.id.action_authFragment_to_listHomeFragment);
         }
     }
 
@@ -137,7 +125,9 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
             case R.id.authButton:
                 sectionViewModel.authenticateApplication(getApplicationContext(), onDisconnected);
                 if (BuildConfig.FLAVOR.equals(MOCK)) {
-                    Navigation.findNavController(v).navigate(R.id.listHomeFragment);
+                    Navigation.findNavController(v).navigate(R.id.action_authFragment_to_listHomeFragment);
+                } else {
+                    finish();
                 }
                 break;
             case R.id.new_section_add_section:
@@ -212,7 +202,8 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
 
     @Override
     public boolean onSupportNavigateUp() {
-        return Navigation.findNavController(this, R.id.my_nav_host_fragment).navigateUp();
+        onBackPressed();
+        return true;
     }
 
     @Override
@@ -227,6 +218,7 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
 
     public void showActionBarBack(final boolean displayed) {
         getSupportActionBar().setDisplayShowHomeEnabled(displayed);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(displayed);
     }
 
     public void showPopUp(final int id) {

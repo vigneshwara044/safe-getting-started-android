@@ -1,39 +1,27 @@
 package net.maidsafe.sample.viewmodel;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
 
 import net.maidsafe.sample.model.Task;
 import net.maidsafe.sample.model.TodoList;
 import net.maidsafe.sample.services.AsyncOperation;
-import net.maidsafe.sample.services.IFailureHandler;
-import net.maidsafe.sample.services.IProgressHandler;
-import net.maidsafe.sample.services.ITodoService;
 import net.maidsafe.sample.services.Result;
-import net.maidsafe.sample.services.SafeTodoService;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ListViewModel extends AndroidViewModel implements IFailureHandler, IProgressHandler {
+public class ListViewModel extends CommonViewModel {
 
-    private static final Integer LIST_ERRROR = -2;
-    private final MutableLiveData<Integer> status;
     private List<Task> taskList;
     private TodoList listInfo;
     private final MutableLiveData<List<Task>> liveTaskList;
-    private final ITodoService todoService;
-    private String errorMessage;
 
     public ListViewModel(final Application application) {
         super(application);
         taskList = new ArrayList<>();
-        status = new MutableLiveData<>();
-        status.setValue(0);
-        todoService = new SafeTodoService(application.getApplicationContext());
         liveTaskList = new MutableLiveData<>();
         liveTaskList.setValue(taskList);
     }
@@ -51,7 +39,7 @@ public class ListViewModel extends AndroidViewModel implements IFailureHandler, 
         new AsyncOperation(this).execute(() -> {
             try {
                 todoService.addTask(task, listInfo);
-                return new Result(null);
+                return new Result();
             } catch (Exception e) {
                 return new Result(e);
             }
@@ -65,7 +53,7 @@ public class ListViewModel extends AndroidViewModel implements IFailureHandler, 
         new AsyncOperation(this).execute(() -> {
             try {
                 todoService.deleteTask(task, listInfo);
-                return new Result(null);
+                return new Result();
             } catch (Exception e) {
                 return new Result(e);
             }
@@ -79,7 +67,7 @@ public class ListViewModel extends AndroidViewModel implements IFailureHandler, 
         new AsyncOperation(this).execute(() -> {
             try {
                 todoService.updateTaskStatus(task, listInfo);
-                return new Result(null);
+                return new Result();
             } catch (Exception e) {
                 return new Result(e);
             }
@@ -112,21 +100,6 @@ public class ListViewModel extends AndroidViewModel implements IFailureHandler, 
         }
     }
 
-    @Override
-    public void onFailure(final Exception e) {
-        errorMessage = e.getMessage();
-        Log.e("INFO:", errorMessage);
-        status.setValue(LIST_ERRROR);
-    }
-
-    @Override
-    public void updateStatus(final int s) {
-        this.status.setValue(s);
-    }
-
-    public MutableLiveData<Integer> getStatus() {
-        return status;
-    }
 
     public void setListDetails(final TodoList todoList) {
         this.listInfo = todoList;
@@ -137,9 +110,5 @@ public class ListViewModel extends AndroidViewModel implements IFailureHandler, 
         if (liveTaskList != null) {
             liveTaskList.setValue(taskList);
         }
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
     }
 }

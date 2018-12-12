@@ -13,6 +13,11 @@ public class Result<T> implements IResult<T> {
         this.e = e;
     }
 
+    public Result() {
+        result = null;
+        this.e = null;
+    }
+
     @Override
     public boolean isError() {
         return this.e != null;
