@@ -3,16 +3,13 @@ package net.maidsafe.sample.view;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,9 +69,9 @@ public class ListHomeFragment extends Fragment {
 
         sectionsList = viewModel.getSections().getValue();
         adapter = new ListsHomeAdapter(sectionsList);
-        final RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 2);
+        final RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false);
+
         listHomeView.setLayoutManager(mLayoutManager);
-        listHomeView.addItemDecoration(new GridSpacingItemDecoration(2, dpToPx(1), true));
         listHomeView.setItemAnimator(new DefaultItemAnimator());
         listHomeView.setAdapter(adapter);
         adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -134,48 +131,6 @@ public class ListHomeFragment extends Fragment {
         void showActionBarBack(boolean displayed);
     }
 
-    public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
-
-        private final int spanCount;
-        private final int spacing;
-        private final boolean includeEdge;
-
-        public GridSpacingItemDecoration(final int spanCount, final int spacing, final boolean includeEdge) {
-            super();
-            this.spanCount = spanCount;
-            this.spacing = spacing;
-            this.includeEdge = includeEdge;
-        }
-
-        @Override
-        public void getItemOffsets(final Rect rect, final View view, final RecyclerView parent,
-                                   final RecyclerView.State state) {
-            final int position = parent.getChildAdapterPosition(view);
-            final int column = position % spanCount;
-
-            if (includeEdge) {
-                rect.left = spacing - column * spacing / spanCount;
-                rect.right = (column + 1) * spacing / spanCount;
-
-                if (position < spanCount) {
-                    rect.top = spacing;
-                }
-                rect.bottom = spacing;
-            } else {
-                rect.left = column * spacing / spanCount;
-                rect.right = spacing - (column + 1) * spacing / spanCount;
-                if (position >= spanCount) {
-                    rect.top = spacing;
-                }
-            }
-        }
-    }
-
-    private int dpToPx(final int dp) {
-        final Resources r = getResources();
-        return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
-    }
-
     class ListsHomeAdapter extends RecyclerView.Adapter<ListsHomeAdapter.MyViewHolder> {
 
         private List<TodoList> sectionsList;
@@ -220,13 +175,11 @@ public class ListHomeFragment extends Fragment {
 
             private final ItemClickedListener itemClickListener;
             private final TextView title;
-            SectionViewModel viewModel;
 
             MyViewHolder(final View view, final ItemClickedListener listener) {
                 super(view);
                 itemClickListener = listener;
                 view.setOnClickListener(this);
-                viewModel = ViewModelProviders.of(getActivity()).get(SectionViewModel.class);
                 title = view.findViewById(R.id.list_card_title);
             }
 

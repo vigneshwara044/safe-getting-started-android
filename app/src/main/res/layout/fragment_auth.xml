@@ -10,23 +10,26 @@
         android:id="@+id/auth_welcome_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:padding="10dp"
         android:text="@string/welcome_msg"
-        android:padding="5dp"
         android:textAlignment="center"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
         app:layout_constraintBottom_toTopOf="@+id/authButton"
         app:layout_constraintEnd_toEndOf="@+id/authButton"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.526"
         app:layout_constraintStart_toStartOf="@+id/authButton"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.684" />
 
-    <Button
+    <android.support.design.button.MaterialButton
         android:id="@+id/authButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="144dp"
+        android:layout_marginBottom="188dp"
         android:backgroundTint="@color/colorPrimary"
         android:text="@string/auth_button_mock"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Widget.Button"
+        android:textSize="16dp"
         android:textColor="@android:color/background_light"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
