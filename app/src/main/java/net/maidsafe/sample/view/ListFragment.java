@@ -213,8 +213,8 @@ public class ListFragment extends Fragment {
                         onButtonPressed(v, taskList.get(getAdapterPosition()));
                 });
                 this.taskDescription = view.findViewById(R.id.taskDescription);
-                this.deleteButton = view.findViewById(R.id.taskDeleteButton);
-                this.deleteButton.setOnClickListener(v -> onButtonPressed(v, taskList.get(getAdapterPosition())));
+//                this.deleteButton = view.findViewById(R.id.taskDeleteButton);
+                //this.deleteButton.setOnClickListener(v -> onButtonPressed(v, taskList.get(getAdapterPosition())));
             }
 
             @Override

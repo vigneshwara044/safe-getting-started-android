@@ -69,7 +69,8 @@ public class ListHomeFragment extends Fragment {
 
         sectionsList = viewModel.getSections().getValue();
         adapter = new ListsHomeAdapter(sectionsList);
-        final RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false);
+        final RecyclerView.LayoutManager mLayoutManager =
+                new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
 
         listHomeView.setLayoutManager(mLayoutManager);
         listHomeView.setItemAnimator(new DefaultItemAnimator());

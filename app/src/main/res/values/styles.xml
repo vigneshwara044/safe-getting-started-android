@@ -17,4 +17,9 @@
         <item name="colorControlActivated">@color/colorPrimaryDark</item>
     </style>
 
+    <style name="checkBoxStyle" parent="Base.Theme.AppCompat">
+        <item name="colorAccent">#32CD32</item>
+        <item name="android:textColorSecondary">@android:color/darker_gray</item>
+    </style>
+
 </resources>

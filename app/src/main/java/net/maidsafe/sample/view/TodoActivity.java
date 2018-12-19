@@ -134,9 +134,9 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
                 final String sectionTitle = (String) object;
                 sectionViewModel.addSection(sectionTitle);
                 break;
-            case R.id.taskDeleteButton:
-                listViewModel.deleteTask((Task) object);
-                break;
+//            case R.id.taskDeleteButton:
+//                listViewModel.deleteTask((Task) object);
+//                break;
             case R.id.new_task_add_task:
                 final String taskDesc = (String) object;
                 listViewModel.addTask(taskDesc);
