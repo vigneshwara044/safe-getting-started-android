@@ -9,78 +9,97 @@
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="2dp"
         app:cardElevation="2dp"
         app:contentPadding="12dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TableLayout
-            android:layout_width="wrap_content"
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <TableRow>
+            <TableLayout
+                android:id="@+id/tableLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/task_description"
-                    android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Title" />
-            </TableRow>
+                <TableRow>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/task_description"
+                        android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Title" />
+                </TableRow>
 
-            <TableRow>
-                <TextView
-                    android:id="@+id/task_description"
-                    android:layout_width="wrap_content"
-                    android:paddingStart="35dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
-                    android:text="@string/description" />
-            </TableRow>
+                <TableRow>
+                    <TextView
+                        android:id="@+id/task_description"
+                        android:layout_width="wrap_content"
+                        android:paddingStart="35dp"
+                        android:text="@string/description"
+                        android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Subtitle" />
+                </TableRow>
 
-            <TableRow>
+                <TableRow>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/status"
+                            android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Title" />
+                </TableRow>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Title"
-                    android:text="@string/status" />
-            </TableRow>
+                <TableRow>
+                    <TextView
+                        android:id="@+id/taskStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="35dp"
+                        android:text="@string/taskStatus"
+                        android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Subtitle" />
+                </TableRow>
 
-            <TableRow>
+                <TableRow>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/created_on"
+                        android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Title" />
+                </TableRow>
 
-                <TextView
-                    android:id="@+id/taskStatus"
-                    android:layout_width="wrap_content"
-                    android:paddingStart="35dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
-                    android:text="@string/taskStatus" />
-            </TableRow>
+                <TableRow>
+                    <TextView
+                        android:id="@+id/dueDateTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="35dp"
+                        android:text="@string/dueDateTime"
+                        android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Subtitle" />
+                </TableRow>
 
-            <TableRow>
+            </TableLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Title"
-                    android:text="@string/created_on" />
-            </TableRow>
+            <Button
+                android:id="@+id/taskDeleteButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                android:backgroundTint="@android:color/holo_red_light"
+                android:text="@string/delete_button"
+                android:textColor="@android:color/background_light"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.968"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tableLayout" />
 
-            <TableRow>
-
-                <TextView
-                    android:id="@+id/dueDateTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingStart="35dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
-                    android:text="@string/dueDateTime" />
-            </TableRow>
-
-        </TableLayout>
+        </android.support.constraint.ConstraintLayout>
 
     </android.support.v7.widget.CardView>
-
-
-
 
 </android.support.constraint.ConstraintLayout>

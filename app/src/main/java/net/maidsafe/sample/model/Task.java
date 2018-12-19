@@ -17,12 +17,14 @@ public class Task implements Serializable, Parcelable {
     // Serial version ID
     private static final long serialVersionUID = 2645416516514354354L;
 
+    private String title;
     private String description;
     private Boolean isComplete;
     private final Date date;
     private long version;
 
-    public Task(final String description, final Date date) {
+    public Task(final String title, final String description, final Date date) {
+        this.title = title;
         this.date = date;
         this.description = description;
         this.isComplete = false;
@@ -43,7 +45,6 @@ public class Task implements Serializable, Parcelable {
 
     public static Task toTask(final byte[] stream) {
         Task task = null;
-
         try (ByteArrayInputStream bais = new ByteArrayInputStream(stream);
              ObjectInputStream ois = new ObjectInputStream(bais)) {
             task = (Task) ois.readObject();
@@ -79,6 +80,14 @@ public class Task implements Serializable, Parcelable {
         isComplete = complete;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(final String title) {
+        this.title = title;
+    }
+
     public Date getDate() {
         return date;
     }
@@ -90,6 +99,7 @@ public class Task implements Serializable, Parcelable {
 
     @Override
     public void writeToParcel(final Parcel parcel, final int i) {
+        parcel.writeString(title);
         parcel.writeString(description);
         parcel.writeValue(isComplete);
         parcel.writeValue(date);
@@ -106,6 +116,7 @@ public class Task implements Serializable, Parcelable {
     };
 
     public Task(final Parcel parcel) {
+        title = parcel.readString();
         description = parcel.readString();
         isComplete = (Boolean) parcel.readValue(Boolean.class.getClassLoader());
         date = (Date) parcel.readValue(Date.class.getClassLoader());

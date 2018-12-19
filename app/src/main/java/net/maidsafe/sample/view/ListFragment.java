@@ -12,7 +12,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
@@ -177,8 +176,7 @@ public class ListFragment extends Fragment {
         public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
             holder.checkBox.setEnabled(connected);
             holder.checkBox.setChecked(taskList.get(position).getComplete());
-            holder.taskDescription.setText(taskList.get(position).getDescription());
-
+            holder.taskTitle.setText(taskList.get(position).getTitle());
         }
 
         @Override
@@ -201,8 +199,7 @@ public class ListFragment extends Fragment {
 
             private final ItemClickedListener itemClickListener;
             CheckBox checkBox;
-            TextView taskDescription;
-            Button deleteButton;
+            TextView taskTitle;
 
             public ViewHolder(final View view, final ItemClickedListener listener) {
                 super(view);
@@ -212,9 +209,7 @@ public class ListFragment extends Fragment {
                 checkBox.setOnClickListener(v -> {
                         onButtonPressed(v, taskList.get(getAdapterPosition()));
                 });
-                this.taskDescription = view.findViewById(R.id.taskDescription);
-                this.deleteButton = view.findViewById(R.id.taskDeleteButton);
-                this.deleteButton.setOnClickListener(v -> onButtonPressed(v, taskList.get(getAdapterPosition())));
+                this.taskTitle = view.findViewById(R.id.taskDescription);
             }
 
             @Override
