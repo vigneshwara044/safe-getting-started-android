@@ -10,7 +10,6 @@ import net.maidsafe.sample.services.AsyncOperation;
 import net.maidsafe.sample.services.Result;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class ListViewModel extends CommonViewModel {
@@ -34,8 +33,7 @@ public class ListViewModel extends CommonViewModel {
         return liveTaskList;
     }
 
-    public void addTask(final String description) {
-        final Task task = new Task(description, new Date());
+    public void addTask(final Task task) {
         new AsyncOperation(this).execute(() -> {
             try {
                 todoService.addTask(task, listInfo);

@@ -35,6 +35,8 @@ import net.maidsafe.sample.model.Task;
 import net.maidsafe.sample.services.AsyncOperation.Status;
 
 
+import java.util.Date;
+
 import androidx.navigation.Navigation;
 
 public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFragmentInteractionListener,
@@ -134,12 +136,11 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
                 final String sectionTitle = (String) object;
                 sectionViewModel.addSection(sectionTitle);
                 break;
-            case R.id.taskDeleteButton:
+            case R.id.delete_task:
                 listViewModel.deleteTask((Task) object);
                 break;
             case R.id.new_task_add_task:
-                final String taskDesc = (String) object;
-                listViewModel.addTask(taskDesc);
+                listViewModel.addTask((Task) object);
                 break;
             case R.id.taskCheckbox:
                 listViewModel.updateTask((Task) object);
@@ -226,24 +227,32 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
         final View dialogView = View.inflate(this, id, null);
 
         EditText editText;
+        EditText taskDescription;
         Button addButton;
         Button cancelButton;
-
         if (id == R.layout.new_section_dialog) {
             editText = dialogView.findViewById(R.id.new_section_edit_text);
+            taskDescription = null;
             addButton = dialogView.findViewById(R.id.new_section_add_section);
             cancelButton = dialogView.findViewById(R.id.new_section_cancel);
+            addButton.setOnClickListener(view -> {
+                final String taskText = editText.getText().toString();
+                onFragmentInteraction(view, taskText);
+                dialogBuilder.dismiss();
+            });
         } else {
-            editText = dialogView.findViewById(R.id.new_task_edit_text);
+            editText = dialogView.findViewById(R.id.new_task_task_title);
+            taskDescription = dialogView.findViewById(R.id.new_task_task_description);
             addButton = dialogView.findViewById(R.id.new_task_add_task);
             cancelButton = dialogView.findViewById(R.id.new_task_cancel);
+            addButton.setOnClickListener(view -> {
+                final String taskTitle = editText.getText().toString();
+                final String taskDesc = taskDescription.getText().toString();
+                onFragmentInteraction(view, new Task(taskTitle, taskDesc, new Date()));
+                dialogBuilder.dismiss();
+            });
         }
-        editText.setOnFocusChangeListener((v, hasFocus) -> editText.post(() -> {
-            final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
-        }));
-        editText.requestFocus();
-        editText.addTextChangedListener(new TextWatcher() {
+        final TextWatcher watcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
                 // no action
@@ -251,20 +260,29 @@ public class TodoActivity extends AppCompatActivity implements AuthFragment.OnFr
 
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
-                addButton.setEnabled(!TextUtils.isEmpty(s.toString().trim()));
+                if (id == R.layout.new_section_dialog) {
+                    addButton.setEnabled(!TextUtils.isEmpty(s.toString().trim()));
+                } else {
+                    addButton.setEnabled(editText.getText().toString().length() > 0
+                                        && taskDescription.getText().toString().length() > 0);
+                }
             }
 
             @Override
             public void afterTextChanged(final Editable s) {
                 // no action
             }
-        });
+        };
+        editText.setOnFocusChangeListener((v, hasFocus) -> editText.post(() -> {
+            final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+        }));
+        editText.requestFocus();
+        editText.addTextChangedListener(watcher);
+        if (id == R.layout.new_task_dialog) {
+            taskDescription.addTextChangedListener(watcher);
+        }
         cancelButton.setOnClickListener(view -> dialogBuilder.dismiss());
-        addButton.setOnClickListener(view -> {
-            final String taskText = editText.getText().toString();
-            onFragmentInteraction(view, taskText);
-            dialogBuilder.dismiss();
-        });
         dialogBuilder.setView(dialogView);
         dialogBuilder.show();
     }

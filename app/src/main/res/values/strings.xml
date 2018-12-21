@@ -2,7 +2,7 @@
     <string name="app_name">SafeTodo Android</string>
     <string name="welcome_msg">Hello there! %1$s</string>
     <string name="welcome_msg_dev">You are running the mock build of the application. The button below will perform mock authentication for you.</string>
-    <string name="welcome_msg_live">You are runnning the non-mock build of the application. Before hitting the Authenticate button please make sure that you have your IP updated, SAFE Authenticator Application installed and you are logged in. You know the drill!</string>
+    <string name="welcome_msg_live">You are runnning the non-mock build of the application. Before hitting the Authenticate button please make sure that you have your IP updated and the SAFE Authenticator Application installed.</string>
     <string name="auth_button">Authenticate</string>
     <string name="auth_button_mock">Mock Authenticate</string>
     <string name="task_placeholder">Some task!</string>
@@ -12,7 +12,8 @@
 
     <string name="delete_button">Delete</string>
     <string name="add_task">Add Task</string>
-    <string name="add_task_hint">Enter task description</string>
+    <string name="add_task_title_hint">Enter task title</string>
+    <string name="add_task_desc_hint">Enter task description</string>
     <string name="cancel">Cancel</string>
     <string name="task_argument_string">task</string>
     <string name="complete">Complete</string>
@@ -21,8 +22,8 @@
     <string name="description">Description</string>
     <string name="taskStatus">Task Status</string>
     <string name="dueDateTime">Due date and time</string>
-    <string name="enter_section_title">Enter Section Title</string>
-    <string name="add_section">Add Section</string>
+    <string name="enter_section_title">Enter list title</string>
+    <string name="add_section">Add List</string>
     <string name="task_description">Task Description:</string>
     <string name="status">Status:</string>
     <string name="created_on">Created On:</string>
@@ -32,4 +33,6 @@
     <string name="close">CLOSE</string>
     <string name="info">INFO</string>
     <string name="no_action">No matching action</string>
+    <string name="recycler_view_icon">recycler view icon</string>
+    <string name="delete_task">Delete task?</string>
 </resources>

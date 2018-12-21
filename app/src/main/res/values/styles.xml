@@ -8,13 +8,18 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="PopUp" parent="TextAppearance.AppCompat">
+    <style name="PopUp">
         <!-- Hint color and label color in FALSE state -->
         <item name="android:textColorHint">@color/colorPrimaryDark</item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat</item>
         <!-- Label color in TRUE state and bar color FALSE and TRUE State -->
         <item name="colorAccent">@color/colorPrimaryDark</item>
         <item name="colorControlNormal">@color/colorPrimaryDark</item>
         <item name="colorControlActivated">@color/colorPrimaryDark</item>
     </style>
 
+    <style name="checkBoxStyle" parent="AppTheme">
+        <item name="colorAccent">#32CD32</item>
+        <item name="android:textColorSecondary">@android:color/darker_gray</item>
+    </style>
 </resources>

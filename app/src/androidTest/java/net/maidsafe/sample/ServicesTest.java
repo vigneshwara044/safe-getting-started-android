@@ -65,8 +65,10 @@ public class ServicesTest {
             service.addSection(randomAlphaNumeric(COUNT));
             Assert.assertEquals(2, service.getSectionsLength());
             TodoList todoList = service.fetchSections().get(0);
-            service.addTask(new Task(randomAlphaNumeric(COUNT), new Date()), todoList);
-            service.addTask(new Task(randomAlphaNumeric(COUNT), new Date()), todoList);
+            service.addTask(new Task(randomAlphaNumeric(COUNT),
+                    randomAlphaNumeric(COUNT), new Date()), todoList);
+            service.addTask(new Task(randomAlphaNumeric(COUNT),
+                    randomAlphaNumeric(COUNT), new Date()), todoList);
             List<Task> taskList = service.fetchListItems(todoList);
             Assert.assertEquals(2, taskList.size());
             // update data
